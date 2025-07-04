@@ -3,9 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingBag, Store, Pill, Users, Clock, Shield } from "lucide-react";
+import { RegistrationForm } from "@/components/RegistrationForm";
+import { MedicineList } from "@/components/MedicineList";
+import { InventoryManagement } from "@/components/InventoryManagement";
 
 const Index = () => {
   const [userType, setUserType] = useState<'buyer' | 'seller' | null>(null);
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  // Show registration form if user type is selected but not registered
+  if (userType && !isRegistered) {
+    return (
+      <RegistrationForm 
+        userType={userType} 
+        onRegistrationComplete={() => setIsRegistered(true)} 
+      />
+    );
+  }
 
   if (userType === null) {
     return (
@@ -126,7 +140,10 @@ const Index = () => {
             <Pill className="h-8 w-8 text-primary mr-2" />
             <span className="text-2xl font-bold">MediConnect</span>
           </div>
-          <Button variant="outline" onClick={() => setUserType(null)}>
+          <Button variant="outline" onClick={() => {
+            setUserType(null);
+            setIsRegistered(false);
+          }}>
             Switch Mode
           </Button>
         </div>
@@ -145,11 +162,7 @@ const Index = () => {
               
               <TabsContent value="search" className="space-y-6">
                 <h1 className="text-3xl font-bold">Find Your Medicine</h1>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">Medicine search functionality will be implemented here...</p>
-                  </CardContent>
-                </Card>
+                <MedicineList />
               </TabsContent>
               
               <TabsContent value="orders" className="space-y-6">
@@ -210,12 +223,7 @@ const Index = () => {
               </TabsContent>
               
               <TabsContent value="inventory" className="space-y-6">
-                <h1 className="text-3xl font-bold">Manage Inventory</h1>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">Inventory management tools will be implemented here...</p>
-                  </CardContent>
-                </Card>
+                <InventoryManagement />
               </TabsContent>
               
               <TabsContent value="orders" className="space-y-6">
