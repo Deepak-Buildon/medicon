@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User } from "lucide-react";
+import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe } from "lucide-react";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { LoginForm } from "@/components/LoginForm";
 import { MedicineList } from "@/components/MedicineList";
@@ -42,7 +42,8 @@ const Index = () => {
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
               <Pill className="h-12 w-12 text-primary mr-3 drop-shadow-sm" />
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediConnect</h1>
+              <Syringe className="h-10 w-10 text-secondary mr-2 drop-shadow-sm" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</h1>
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers
@@ -136,7 +137,7 @@ const Index = () => {
 
           {/* Features */}
           <div className="mt-20 text-center">
-            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Why Choose MediConnect?</h2>
+            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Why Choose MediCon?</h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="space-y-3">
                 <div className="mx-auto w-fit p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full shadow-inner">
@@ -146,11 +147,11 @@ const Index = () => {
                 <p className="text-muted-foreground">Get your medicines delivered quickly from nearby pharmacies</p>
               </div>
               <div className="space-y-3">
-                <div className="mx-auto w-fit p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full shadow-inner">
-                  <Shield className="h-6 w-6 text-primary" />
+                <div className="mx-auto w-fit p-3 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-full shadow-inner">
+                  <Syringe className="h-6 w-6 text-secondary" />
                 </div>
-                <h3 className="text-xl font-semibold">Verified Quality</h3>
-                <p className="text-muted-foreground">All medicines and pharmacies are verified for your safety</p>
+                <h3 className="text-xl font-semibold">Medical Excellence</h3>
+                <p className="text-muted-foreground">Professional medical supplies and verified pharmaceuticals</p>
               </div>
               <div className="space-y-3">
                 <div className="mx-auto w-fit p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full shadow-inner">
@@ -173,7 +174,8 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Pill className="h-8 w-8 text-primary mr-2" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediConnect</span>
+            <Syringe className="h-6 w-6 text-secondary mr-2" />
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</span>
           </div>
           
           <div className="flex items-center space-x-4">
