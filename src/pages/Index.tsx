@@ -4,32 +4,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingBag, Store, Pill, Users, Clock, Shield } from "lucide-react";
 import { RegistrationForm } from "@/components/RegistrationForm";
+import { LoginForm } from "@/components/LoginForm";
 import { MedicineList } from "@/components/MedicineList";
 import { InventoryManagement } from "@/components/InventoryManagement";
 
 const Index = () => {
   const [userType, setUserType] = useState<'buyer' | 'seller' | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isLoginMode, setIsLoginMode] = useState(true);
 
-  // Show registration form if user type is selected but not registered
+  // Show login/registration forms if user type is selected but not authenticated
   if (userType && !isRegistered) {
-    return (
-      <RegistrationForm 
-        userType={userType} 
-        onRegistrationComplete={() => setIsRegistered(true)} 
-      />
-    );
+    if (isLoginMode) {
+      return (
+        <LoginForm 
+          userType={userType} 
+          onLoginComplete={() => setIsRegistered(true)}
+          onSwitchToRegister={() => setIsLoginMode(false)}
+        />
+      );
+    } else {
+      return (
+        <RegistrationForm 
+          userType={userType} 
+          onRegistrationComplete={() => setIsRegistered(true)}
+          onSwitchToLogin={() => setIsLoginMode(true)}
+        />
+      );
+    }
   }
 
   if (userType === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
+      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
         <div className="container mx-auto px-4 py-16">
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
-              <Pill className="h-12 w-12 text-primary mr-3" />
-              <h1 className="text-4xl font-bold text-foreground">MediConnect</h1>
+              <Pill className="h-12 w-12 text-primary mr-3 drop-shadow-sm" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediConnect</h1>
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers
@@ -38,13 +51,13 @@ const Index = () => {
 
           {/* User Type Selection */}
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/20" 
+            <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 group" 
                   onClick={() => setUserType('buyer')}>
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full w-fit shadow-inner group-hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   <ShoppingBag className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="text-2xl">Buy Medicine</CardTitle>
+                <CardTitle className="text-2xl group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">Buy Medicine</CardTitle>
                 <CardDescription className="text-base">
                   Find and order medicines from nearby pharmacies
                 </CardDescription>
@@ -62,19 +75,19 @@ const Index = () => {
                   <Users className="h-4 w-4 mr-2" />
                   Compare prices across stores
                 </div>
-                <Button className="w-full mt-4">
+                <Button className="w-full mt-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   Start Shopping
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/20" 
+            <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-secondary/30 group" 
                   onClick={() => setUserType('seller')}>
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-3 bg-secondary/10 rounded-full w-fit">
-                  <Store className="h-8 w-8 text-secondary-foreground" />
+                <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-full w-fit shadow-inner group-hover:shadow-[var(--shadow-glow)] transition-all duration-300">
+                  <Store className="h-8 w-8 text-secondary" />
                 </div>
-                <CardTitle className="text-2xl">Sell Medicine</CardTitle>
+                <CardTitle className="text-2xl group-hover:bg-gradient-to-r group-hover:from-secondary group-hover:to-accent group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">Sell Medicine</CardTitle>
                 <CardDescription className="text-base">
                   List your pharmacy and reach more customers
                 </CardDescription>
@@ -92,7 +105,7 @@ const Index = () => {
                   <Shield className="h-4 w-4 mr-2" />
                   Secure payment processing
                 </div>
-                <Button variant="secondary" className="w-full mt-4">
+                <Button className="w-full mt-4 bg-gradient-to-r from-secondary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   Register Your Store
                 </Button>
               </CardContent>
@@ -101,24 +114,24 @@ const Index = () => {
 
           {/* Features */}
           <div className="mt-20 text-center">
-            <h2 className="text-3xl font-bold mb-8">Why Choose MediConnect?</h2>
+            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Why Choose MediConnect?</h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="space-y-3">
-                <div className="mx-auto w-fit p-3 bg-primary/10 rounded-full">
+                <div className="mx-auto w-fit p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full shadow-inner">
                   <Clock className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">Fast Delivery</h3>
                 <p className="text-muted-foreground">Get your medicines delivered quickly from nearby pharmacies</p>
               </div>
               <div className="space-y-3">
-                <div className="mx-auto w-fit p-3 bg-primary/10 rounded-full">
+                <div className="mx-auto w-fit p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full shadow-inner">
                   <Shield className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">Verified Quality</h3>
                 <p className="text-muted-foreground">All medicines and pharmacies are verified for your safety</p>
               </div>
               <div className="space-y-3">
-                <div className="mx-auto w-fit p-3 bg-primary/10 rounded-full">
+                <div className="mx-auto w-fit p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full shadow-inner">
                   <Users className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">Trusted Network</h3>
