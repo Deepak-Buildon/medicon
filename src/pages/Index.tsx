@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Store, Pill, Users, Clock, Shield } from "lucide-react";
+import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User } from "lucide-react";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { LoginForm } from "@/components/LoginForm";
 import { MedicineList } from "@/components/MedicineList";
@@ -78,6 +78,17 @@ const Index = () => {
                 <Button className="w-full mt-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   Start Shopping
                 </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setUserType('buyer');
+                    setIsLoginMode(true);
+                  }}
+                >
+                  Login as Buyer
+                </Button>
               </CardContent>
             </Card>
 
@@ -107,6 +118,17 @@ const Index = () => {
                 </div>
                 <Button className="w-full mt-4 bg-gradient-to-r from-secondary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   Register Your Store
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setUserType('seller');
+                    setIsLoginMode(true);
+                  }}
+                >
+                  Login as Seller
                 </Button>
               </CardContent>
             </Card>
@@ -147,18 +169,48 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card">
+      <header className="border-b bg-card shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Pill className="h-8 w-8 text-primary mr-2" />
-            <span className="text-2xl font-bold">MediConnect</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediConnect</span>
           </div>
-          <Button variant="outline" onClick={() => {
-            setUserType(null);
-            setIsRegistered(false);
-          }}>
-            Switch Mode
-          </Button>
+          
+          <div className="flex items-center space-x-4">
+            {userType === 'buyer' && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="relative hover:bg-primary/10"
+              >
+                <ShoppingCart className="h-5 w-5 text-primary" />
+                <span className="absolute -top-1 -right-1 bg-accent text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  0
+                </span>
+              </Button>
+            )}
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="hover:bg-primary/10"
+            >
+              <User className="h-5 w-5 text-primary mr-2" />
+              Profile
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                setUserType(null);
+                setIsRegistered(false);
+                setIsLoginMode(true);
+              }}
+            >
+              Switch Mode
+            </Button>
+          </div>
         </div>
       </header>
 
