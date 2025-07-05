@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe } from "lucide-react";
@@ -319,3 +318,4 @@ const Index = () => {
 };
 
 export default Index;
+z  s
