@@ -1,4 +1,5 @@
-from "@/components/ui/button";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe } from "lucide-react";
@@ -8,9 +9,39 @@ import { MedicineList } from "@/components/MedicineList";
 import { InventoryManagement } from "@/components/InventoryManagement";
 
 const Index = () => {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [userType, setUserType] = useState<'buyer' | 'seller' | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
+
+  // Show welcome page first
+  if (showWelcome) {
+    return (
+      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-8">
+              <Pill className="h-16 w-16 text-primary mr-4 drop-shadow-sm" />
+              <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</h1>
+              <Syringe className="h-12 w-12 text-secondary ml-4 drop-shadow-sm" />
+            </div>
+            <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+              India's BEST Pharam Delivery App
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
+              Your trusted marketplace connecting medicine buyers with local pharmacies and retailers across India
+            </p>
+            <Button 
+              onClick={() => setShowWelcome(false)}
+              className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Show login/registration forms if user type is selected but not authenticated
   if (userType && !isRegistered) {
@@ -41,8 +72,8 @@ const Index = () => {
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
               <Pill className="h-12 w-12 text-primary mr-3 drop-shadow-sm" />
-              <Syringe className="h-10 w-10 text-secondary mr-2 drop-shadow-sm" />
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</h1>
+              <Syringe className="h-10 w-10 text-secondary ml-3 drop-shadow-sm" />
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers
@@ -173,8 +204,8 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Pill className="h-8 w-8 text-primary mr-2" />
-            <Syringe className="h-6 w-6 text-secondary mr-2" />
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</span>
+            <Syringe className="h-6 w-6 text-secondary ml-2" />
           </div>
           
           <div className="flex items-center space-x-4">
@@ -318,4 +349,3 @@ const Index = () => {
 };
 
 export default Index;
-z  s
