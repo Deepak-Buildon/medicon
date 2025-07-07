@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 import { Search, ShoppingCart, MapPin } from "lucide-react";
 
 interface Medicine {
@@ -74,6 +75,7 @@ export const MedicineList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [medicines] = useState<Medicine[]>(sampleMedicines);
   const { toast } = useToast();
+  const { addToCart } = useCart();
 
   const filteredMedicines = medicines.filter(medicine =>
     medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,6 +91,14 @@ export const MedicineList = () => {
       });
       return;
     }
+
+    addToCart({
+      id: medicine.id,
+      name: medicine.name,
+      price: medicine.price,
+      pharmacy: medicine.pharmacy,
+      distance: medicine.distance
+    });
 
     toast({
       title: "Added to Cart",

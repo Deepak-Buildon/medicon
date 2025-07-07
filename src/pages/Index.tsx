@@ -7,10 +7,13 @@ import { RegistrationForm } from "@/components/RegistrationForm";
 import { LoginForm } from "@/components/LoginForm";
 import { MedicineList } from "@/components/MedicineList";
 import { InventoryManagement } from "@/components/InventoryManagement";
+import { Cart } from "@/components/Cart";
+import { CartProvider, useCart } from "@/contexts/CartContext";
 import { Input } from "@/components/ui/input";
+import { HeaderWithCart } from "@/components/HeaderWithCart";
 import { Label } from "@/components/ui/label";
 
-const Index = () => {
+const IndexContent = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showPhoneVerification, setShowPhoneVerification] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
@@ -20,6 +23,7 @@ const Index = () => {
   const [userType, setUserType] = useState<'buyer' | 'seller' | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [currentTab, setCurrentTab] = useState('search');
 
   const generateOTP = () => {
     const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
@@ -351,59 +355,24 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <Pill className="h-8 w-8 text-primary mr-2" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</span>
-            <Syringe className="h-6 w-6 text-secondary ml-2" />
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {userType === 'buyer' && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="relative hover:bg-primary/10"
-              >
-                <ShoppingCart className="h-5 w-5 text-primary" />
-                <span className="absolute -top-1 -right-1 bg-accent text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
-              </Button>
-            )}
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="hover:bg-primary/10"
-            >
-              <User className="h-5 w-5 text-primary mr-2" />
-              Profile
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                setUserType(null);
-                setIsRegistered(false);
-                setIsLoginMode(true);
-              }}
-            >
-              Switch Mode
-            </Button>
-          </div>
-        </div>
-      </header>
+      <HeaderWithCart 
+        userType={userType}
+        onSwitchMode={() => {
+          setUserType(null);
+          setIsRegistered(false);
+          setIsLoginMode(true);
+        }}
+        onCartClick={() => setCurrentTab('cart')}
+      />
 
       {/* Content based on user type */}
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue={userType === 'buyer' ? 'search' : 'dashboard'} className="w-full">
+        <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
           {userType === 'buyer' ? (
             <>
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="search">Search Medicine</TabsTrigger>
+                <TabsTrigger value="cart">Cart</TabsTrigger>
                 <TabsTrigger value="orders">My Orders</TabsTrigger>
                 <TabsTrigger value="profile">Profile</TabsTrigger>
               </TabsList>
@@ -411,6 +380,11 @@ const Index = () => {
               <TabsContent value="search" className="space-y-6">
                 <h1 className="text-3xl font-bold">Find Your Medicine</h1>
                 <MedicineList />
+              </TabsContent>
+
+              <TabsContent value="cart" className="space-y-6">
+                <h1 className="text-3xl font-bold">My Cart</h1>
+                <Cart />
               </TabsContent>
               
               <TabsContent value="orders" className="space-y-6">
@@ -496,6 +470,14 @@ const Index = () => {
         </Tabs>
       </main>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <CartProvider>
+      <IndexContent />
+    </CartProvider>
   );
 };
 
