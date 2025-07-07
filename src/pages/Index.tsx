@@ -2,17 +2,42 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe } from "lucide-react";
+import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe, Phone } from "lucide-react";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { LoginForm } from "@/components/LoginForm";
 import { MedicineList } from "@/components/MedicineList";
 import { InventoryManagement } from "@/components/InventoryManagement";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showPhoneVerification, setShowPhoneVerification] = useState(false);
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [generatedOTP, setGeneratedOTP] = useState('');
   const [userType, setUserType] = useState<'buyer' | 'seller' | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
+
+  const generateOTP = () => {
+    const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOTP(newOTP);
+    // In production, you would send this OTP via SMS
+    console.log('Generated OTP:', newOTP);
+    alert(`Your OTP is: ${newOTP} (In production, this would be sent via SMS)`);
+  };
+
+  const verifyOTP = () => {
+    if (otp === generatedOTP) {
+      setShowOTPVerification(false);
+      setShowPhoneVerification(false);
+      setShowWelcome(false);
+    } else {
+      alert('Invalid OTP. Please try again.');
+    }
+  };
 
   // Show welcome page first
   if (showWelcome) {
@@ -26,17 +51,143 @@ const Index = () => {
               <Syringe className="h-12 w-12 text-secondary ml-4 drop-shadow-sm" />
             </div>
             <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-              India's BEST Pharam Delivery App
+              India's BEST Pharmaceutical Delivery App
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers across India
             </p>
             <Button 
-              onClick={() => setShowWelcome(false)}
+              onClick={() => {
+                setShowWelcome(false);
+                setShowPhoneVerification(true);
+              }}
               className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
             >
               Get Started
             </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show phone verification page
+  if (showPhoneVerification && !showOTPVerification) {
+    return (
+      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+          <div className="max-w-md w-full">
+            <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full w-fit">
+                  <Phone className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-2xl">Verify Your Phone</CardTitle>
+                <CardDescription>
+                  Enter your phone number to receive an OTP
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+91 XXXXX XXXXX"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="text-lg"
+                  />
+                </div>
+                <Button 
+                  className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
+                  onClick={() => {
+                    if (phoneNumber.length >= 10) {
+                      generateOTP();
+                      setShowOTPVerification(true);
+                    } else {
+                      alert('Please enter a valid phone number');
+                    }
+                  }}
+                  disabled={!phoneNumber}
+                >
+                  Send OTP
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    setShowPhoneVerification(false);
+                    setShowWelcome(true);
+                  }}
+                >
+                  Back
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show OTP verification page
+  if (showOTPVerification) {
+    return (
+      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+          <div className="max-w-md w-full">
+            <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full w-fit">
+                  <Shield className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-2xl">Enter OTP</CardTitle>
+                <CardDescription>
+                  We've sent a 6-digit code to {phoneNumber}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="otp">6-Digit OTP</Label>
+                  <Input
+                    id="otp"
+                    type="text"
+                    placeholder="000000"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="text-lg text-center tracking-widest"
+                    maxLength={6}
+                  />
+                </div>
+                <Button 
+                  className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
+                  onClick={verifyOTP}
+                  disabled={otp.length !== 6}
+                >
+                  Verify OTP
+                </Button>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => {
+                      setShowOTPVerification(false);
+                      setOtp('');
+                    }}
+                  >
+                    Back
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="flex-1"
+                    onClick={generateOTP}
+                  >
+                    Resend OTP
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
