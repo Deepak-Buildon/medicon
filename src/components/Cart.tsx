@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Plus, Minus, MapPin } from "lucide-react";
+import { Trash2, Plus, Minus, MapPin, Smartphone, QrCode } from "lucide-react";
 
 export const Cart = () => {
   const { 
@@ -19,6 +20,7 @@ export const Cart = () => {
     clearCart 
   } = useCart();
   const { toast } = useToast();
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const handleBuy = () => {
     const selectedItems = getSelectedItems();
@@ -30,15 +32,35 @@ export const Cart = () => {
       });
       return;
     }
+    setShowPaymentModal(true);
+  };
 
+  const handleUPIPayment = (app: string) => {
+    const selectedItems = getSelectedItems();
     toast({
-      title: "Order Placed!",
-      description: `Successfully ordered ${selectedItems.length} items for ₹${getTotalCost()}`
+      title: "Payment Processing",
+      description: `Redirecting to ${app} for payment of ₹${getTotalCost()}`
     });
     
-    // Remove selected items from cart after purchase
-    selectedItems.forEach(item => removeFromCart(item.id));
+    // Simulate payment processing
+    setTimeout(() => {
+      toast({
+        title: "Payment Successful!",
+        description: `Order placed successfully via ${app}`
+      });
+      selectedItems.forEach(item => removeFromCart(item.id));
+      setShowPaymentModal(false);
+    }, 2000);
   };
+
+  const upiApps = [
+    { name: "Google Pay", icon: "🟢", color: "bg-green-500" },
+    { name: "PhonePe", icon: "🟣", color: "bg-purple-500" },
+    { name: "Paytm", icon: "🔵", color: "bg-blue-500" },
+    { name: "Amazon Pay", icon: "🟠", color: "bg-orange-500" },
+    { name: "BHIM UPI", icon: "🔴", color: "bg-red-500" },
+    { name: "WhatsApp Pay", icon: "🟢", color: "bg-green-600" }
+  ];
 
   const allSelected = cartItems.length > 0 && cartItems.every(item => item.selected);
   const someSelected = cartItems.some(item => item.selected);
@@ -167,6 +189,61 @@ export const Cart = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* UPI Payment Modal */}
+      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Smartphone className="h-5 w-5" />
+              Choose Payment Method
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center mb-4">
+                  <div className="text-lg font-semibold">Total Amount</div>
+                  <div className="text-2xl font-bold text-primary">₹{getTotalCost()}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {getSelectedItems().length} items selected
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div>
+              <h4 className="font-medium mb-3 flex items-center gap-2">
+                <QrCode className="h-4 w-4" />
+                Pay via UPI Apps
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                {upiApps.map((app) => (
+                  <Button
+                    key={app.name}
+                    variant="outline"
+                    className="h-16 flex flex-col items-center justify-center gap-1 hover:shadow-md transition-all"
+                    onClick={() => handleUPIPayment(app.name)}
+                  >
+                    <div className="text-2xl">{app.icon}</div>
+                    <div className="text-xs font-medium">{app.name}</div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setShowPaymentModal(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
