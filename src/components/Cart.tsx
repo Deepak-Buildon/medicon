@@ -22,6 +22,18 @@ export const Cart = () => {
   } = useCart();
   const { toast } = useToast();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [upiId, setUpiId] = useState("");
+  const [cardDetails, setCardDetails] = useState({
+    number: "",
+    expiry: "",
+    cvv: "",
+    name: ""
+  });
+  const [addressDetails, setAddressDetails] = useState({
+    address: "",
+    pincode: "",
+    phone: ""
+  });
 
   const handleBuy = () => {
     const selectedItems = getSelectedItems();
@@ -247,51 +259,139 @@ export const Cart = () => {
             </TabsList>
 
             <TabsContent value="upi" className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-3">Pay via UPI Apps</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  {upiApps.map((app) => (
-                    <Button
-                      key={app.name}
-                      variant="outline"
-                      className="h-16 flex flex-col items-center justify-center gap-1 hover:shadow-md transition-all"
-                      onClick={() => handlePayment(app.name, "upi")}
-                    >
-                      <div className="text-2xl">{app.icon}</div>
-                      <div className="text-xs font-medium">{app.name}</div>
-                    </Button>
-                  ))}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Enter UPI ID</label>
+                  <Input
+                    placeholder="yourname@upi"
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                    className="mb-4"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-medium mb-3">Choose UPI App</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {upiApps.map((app) => (
+                      <Button
+                        key={app.name}
+                        variant="outline"
+                        className="h-16 flex flex-col items-center justify-center gap-1 hover:shadow-md transition-all"
+                        onClick={() => upiId ? handlePayment(app.name, "upi") : toast({title: "Please enter UPI ID", variant: "destructive"})}
+                        disabled={!upiId}
+                      >
+                        <div className="text-2xl">{app.icon}</div>
+                        <div className="text-xs font-medium">{app.name}</div>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="cards" className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-3">Pay with Cards</h4>
+              <div className="space-y-4">
                 <div className="space-y-3">
-                  {cardTypes.map((card) => (
-                    <Button
-                      key={card.name}
-                      variant="outline"
-                      className="w-full h-16 flex items-center justify-between p-4 hover:shadow-md transition-all"
-                      onClick={() => handlePayment(card.name, "card")}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl">{card.icon}</div>
-                        <div className="text-left">
-                          <div className="font-medium">{card.name}</div>
-                          <div className="text-xs text-muted-foreground">{card.description}</div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Cardholder Name</label>
+                    <Input
+                      placeholder="Full name on card"
+                      value={cardDetails.name}
+                      onChange={(e) => setCardDetails({...cardDetails, name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Card Number</label>
+                    <Input
+                      placeholder="1234 5678 9012 3456"
+                      value={cardDetails.number}
+                      onChange={(e) => setCardDetails({...cardDetails, number: e.target.value})}
+                      maxLength={19}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Expiry</label>
+                      <Input
+                        placeholder="MM/YY"
+                        value={cardDetails.expiry}
+                        onChange={(e) => setCardDetails({...cardDetails, expiry: e.target.value})}
+                        maxLength={5}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">CVV</label>
+                      <Input
+                        placeholder="123"
+                        value={cardDetails.cvv}
+                        onChange={(e) => setCardDetails({...cardDetails, cvv: e.target.value})}
+                        maxLength={4}
+                        type="password"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-3">Select Card Type</h4>
+                  <div className="space-y-3">
+                    {cardTypes.map((card) => (
+                      <Button
+                        key={card.name}
+                        variant="outline"
+                        className="w-full h-16 flex items-center justify-between p-4 hover:shadow-md transition-all"
+                        onClick={() => {
+                          const isValid = cardDetails.name && cardDetails.number && cardDetails.expiry && cardDetails.cvv;
+                          if (isValid) {
+                            handlePayment(card.name, "card");
+                          } else {
+                            toast({title: "Please fill all card details", variant: "destructive"});
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">{card.icon}</div>
+                          <div className="text-left">
+                            <div className="font-medium">{card.name}</div>
+                            <div className="text-xs text-muted-foreground">{card.description}</div>
+                          </div>
                         </div>
-                      </div>
-                    </Button>
-                  ))}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="cod" className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-3">Cash on Delivery</h4>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Delivery Address</label>
+                    <Input
+                      placeholder="House no, street, area"
+                      value={addressDetails.address}
+                      onChange={(e) => setAddressDetails({...addressDetails, address: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Pincode</label>
+                    <Input
+                      placeholder="Enter pincode"
+                      value={addressDetails.pincode}
+                      onChange={(e) => setAddressDetails({...addressDetails, pincode: e.target.value})}
+                      maxLength={6}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Phone Number</label>
+                    <Input
+                      placeholder="Enter phone number"
+                      value={addressDetails.phone}
+                      onChange={(e) => setAddressDetails({...addressDetails, phone: e.target.value})}
+                      maxLength={10}
+                    />
+                  </div>
+                </div>
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-4">
@@ -305,7 +405,14 @@ export const Cart = () => {
                     </div>
                     <Button
                       className="w-full"
-                      onClick={() => handlePayment("Cash on Delivery", "cod")}
+                      onClick={() => {
+                        const isValid = addressDetails.address && addressDetails.pincode && addressDetails.phone;
+                        if (isValid) {
+                          handlePayment("Cash on Delivery", "cod");
+                        } else {
+                          toast({title: "Please fill all address details", variant: "destructive"});
+                        }
+                      }}
                     >
                       Confirm COD Order
                     </Button>
