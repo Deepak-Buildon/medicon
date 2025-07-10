@@ -1,18 +1,23 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, User, Pill, Syringe } from "lucide-react";
+import { ShoppingCart, User, Settings, Syringe } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import quickdoseLogo from "@/assets/quickdose-logo.png";
 
 interface HeaderWithCartProps {
   userType: 'buyer' | 'seller';
   onSwitchMode: () => void;
   onCartClick?: () => void;
+  onProfileClick?: () => void;
+  onSettingsClick?: () => void;
 }
 
 export const HeaderWithCart: React.FC<HeaderWithCartProps> = ({ 
   userType, 
   onSwitchMode,
-  onCartClick 
+  onCartClick,
+  onProfileClick,
+  onSettingsClick
 }) => {
   const { getCartCount } = useCart();
   const cartCount = getCartCount();
@@ -21,8 +26,8 @@ export const HeaderWithCart: React.FC<HeaderWithCartProps> = ({
     <header className="border-b bg-card shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <Pill className="h-8 w-8 text-primary mr-2" />
-          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</span>
+          <img src={quickdoseLogo} alt="QuickDose" className="h-8 w-8 mr-2" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</span>
           <Syringe className="h-6 w-6 text-secondary ml-2" />
         </div>
         
@@ -47,17 +52,19 @@ export const HeaderWithCart: React.FC<HeaderWithCartProps> = ({
             variant="ghost" 
             size="sm" 
             className="hover:bg-primary/10"
+            onClick={onProfileClick}
           >
             <User className="h-5 w-5 text-primary mr-2" />
             Profile
           </Button>
           
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="sm"
-            onClick={onSwitchMode}
+            onClick={onSettingsClick}
+            className="hover:bg-primary/10"
           >
-            Switch Mode
+            <Settings className="h-5 w-5 text-primary" />
           </Button>
         </div>
       </div>

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe, Phone } from "lucide-react";
+import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe, Phone, ArrowLeft } from "lucide-react";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { LoginForm } from "@/components/LoginForm";
 import { MedicineList } from "@/components/MedicineList";
@@ -12,6 +12,9 @@ import { CartProvider, useCart } from "@/contexts/CartContext";
 import { Input } from "@/components/ui/input";
 import { HeaderWithCart } from "@/components/HeaderWithCart";
 import { Label } from "@/components/ui/label";
+import { ProfilePhoto } from "@/components/ProfilePhoto";
+import { Settings } from "@/components/Settings";
+import quickdoseLogo from "@/assets/quickdose-logo.png";
 
 const IndexContent = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -24,6 +27,16 @@ const IndexContent = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [currentTab, setCurrentTab] = useState('search');
+  const [showSettings, setShowSettings] = useState(false);
+  const [registeredNumbers, setRegisteredNumbers] = useState<string[]>([]);
+
+  // Check if phone number is already registered
+  useEffect(() => {
+    const saved = localStorage.getItem('registeredNumbers');
+    if (saved) {
+      setRegisteredNumbers(JSON.parse(saved));
+    }
+  }, []);
 
   const generateOTP = () => {
     const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
@@ -35,12 +48,21 @@ const IndexContent = () => {
 
   const verifyOTP = () => {
     if (otp === generatedOTP) {
+      // Save the verified phone number
+      const updatedNumbers = [...registeredNumbers, phoneNumber];
+      setRegisteredNumbers(updatedNumbers);
+      localStorage.setItem('registeredNumbers', JSON.stringify(updatedNumbers));
+      
       setShowOTPVerification(false);
       setShowPhoneVerification(false);
       setShowWelcome(false);
     } else {
       alert('Invalid OTP. Please try again.');
     }
+  };
+
+  const checkPhoneNumber = (phone: string) => {
+    return registeredNumbers.includes(phone);
   };
 
   // Show welcome page first
@@ -50,8 +72,8 @@ const IndexContent = () => {
         <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
-              <Pill className="h-16 w-16 text-primary mr-4 drop-shadow-sm" />
-              <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</h1>
+              <img src={quickdoseLogo} alt="QuickDose" className="h-16 w-16 mr-4 drop-shadow-sm" />
+              <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-12 w-12 text-secondary ml-4 drop-shadow-sm" />
             </div>
             <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
@@ -107,15 +129,20 @@ const IndexContent = () => {
                   className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
                   onClick={() => {
                     if (phoneNumber.length >= 10) {
-                      generateOTP();
-                      setShowOTPVerification(true);
+                      if (checkPhoneNumber(phoneNumber)) {
+                        setShowPhoneVerification(false);
+                        setShowWelcome(false);
+                      } else {
+                        generateOTP();
+                        setShowOTPVerification(true);
+                      }
                     } else {
                       alert('Please enter a valid phone number');
                     }
                   }}
                   disabled={!phoneNumber}
                 >
-                  Send OTP
+                  {checkPhoneNumber(phoneNumber) ? 'Continue' : 'Send OTP'}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -226,8 +253,8 @@ const IndexContent = () => {
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
-              <Pill className="h-12 w-12 text-primary mr-3 drop-shadow-sm" />
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCon</h1>
+              <img src={quickdoseLogo} alt="QuickDose" className="h-12 w-12 mr-3 drop-shadow-sm" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-10 w-10 text-secondary ml-3 drop-shadow-sm" />
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -322,7 +349,7 @@ const IndexContent = () => {
 
           {/* Features */}
           <div className="mt-20 text-center">
-            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Why Choose MediCon?</h2>
+            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Why Choose QuickDose?</h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="space-y-3">
                 <div className="mx-auto w-fit p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full shadow-inner">
@@ -352,6 +379,42 @@ const IndexContent = () => {
     );
   }
 
+  if (showSettings) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card shadow-sm">
+          <div className="container mx-auto px-4 py-4 flex items-center">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setShowSettings(false)}
+              className="hover:bg-primary/10 mr-4"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center">
+              <img src={quickdoseLogo} alt="QuickDose" className="h-8 w-8 mr-2" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</span>
+            </div>
+          </div>
+        </header>
+        
+        <main className="container mx-auto px-4 py-8">
+          <Settings 
+            userType={userType!}
+            onSwitchMode={() => {
+              setUserType(null);
+              setIsRegistered(false);
+              setIsLoginMode(true);
+              setShowSettings(false);
+            }}
+            onClose={() => setShowSettings(false)}
+          />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -363,6 +426,8 @@ const IndexContent = () => {
           setIsLoginMode(true);
         }}
         onCartClick={() => setCurrentTab('cart')}
+        onProfileClick={() => setCurrentTab('profile')}
+        onSettingsClick={() => setShowSettings(true)}
       />
 
       {/* Content based on user type */}
@@ -398,11 +463,23 @@ const IndexContent = () => {
               
               <TabsContent value="profile" className="space-y-6">
                 <h1 className="text-3xl font-bold">My Profile</h1>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">User profile settings will be here...</p>
-                  </CardContent>
-                </Card>
+                <div className="grid gap-6">
+                  <ProfilePhoto />
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center">
+                          <User className="h-8 w-8 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold">John Doe</h3>
+                          <p className="text-muted-foreground">Customer since 2024</p>
+                          <p className="text-sm text-muted-foreground">Phone: {phoneNumber}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </>
           ) : (
@@ -459,11 +536,23 @@ const IndexContent = () => {
               
               <TabsContent value="profile" className="space-y-6">
                 <h1 className="text-3xl font-bold">Store Profile</h1>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">Store profile and settings will be here...</p>
-                  </CardContent>
-                </Card>
+                <div className="grid gap-6">
+                  <ProfilePhoto />
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="h-16 w-16 bg-secondary/10 rounded-full flex items-center justify-center">
+                          <Store className="h-8 w-8 text-secondary" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold">ABC Pharmacy</h3>
+                          <p className="text-muted-foreground">Licensed since 2020</p>
+                          <p className="text-sm text-muted-foreground">Phone: {phoneNumber}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </>
           )}
