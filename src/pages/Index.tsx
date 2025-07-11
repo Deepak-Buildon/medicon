@@ -14,7 +14,7 @@ import { HeaderWithCart } from "@/components/HeaderWithCart";
 import { Label } from "@/components/ui/label";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 import { Settings } from "@/components/Settings";
-import quickdoseLogo from "@/assets/quickdose-logo.png";
+import medicinePills from "@/assets/medicine-pills.png";
 
 const IndexContent = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -72,7 +72,7 @@ const IndexContent = () => {
         <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
-              <img src={quickdoseLogo} alt="QuickDose" className="h-16 w-16 mr-4 drop-shadow-sm" />
+              <img src={medicinePills} alt="Medicine Pills" className="h-16 w-16 mr-4 drop-shadow-sm" />
               <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-12 w-12 text-secondary ml-4 drop-shadow-sm" />
             </div>
@@ -253,7 +253,7 @@ const IndexContent = () => {
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
-              <img src={quickdoseLogo} alt="QuickDose" className="h-12 w-12 mr-3 drop-shadow-sm" />
+              <img src={medicinePills} alt="Medicine Pills" className="h-12 w-12 mr-3 drop-shadow-sm" />
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-10 w-10 text-secondary ml-3 drop-shadow-sm" />
             </div>
@@ -393,7 +393,7 @@ const IndexContent = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center">
-              <img src={quickdoseLogo} alt="QuickDose" className="h-8 w-8 mr-2" />
+              <img src={medicinePills} alt="Medicine Pills" className="h-8 w-8 mr-2" />
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</span>
             </div>
           </div>
