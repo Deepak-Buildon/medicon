@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Settings, User, Pill, Syringe } from "lucide-react";
-import medicinePills from "@/assets/medicine-pills.png";
+import bluePillLogo from "@/assets/blue-pill-logo.png";
 
 interface NavigationProps {
   onBack?: () => void;
@@ -36,7 +36,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           )}
           
           <div className="flex items-center">
-            <img src={medicinePills} alt="Medicine Pills" className="h-8 w-8 mr-2" />
+            <img src={bluePillLogo} alt="Blue Pill" className="h-8 w-8 mr-2" />
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               {title}
             </span>
