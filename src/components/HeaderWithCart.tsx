@@ -26,9 +26,9 @@ export const HeaderWithCart: React.FC<HeaderWithCartProps> = ({
     <header className="border-b bg-card shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
+          <Pill className="h-6 w-6 text-primary mr-2" />
           <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</span>
           <Syringe className="h-6 w-6 text-secondary ml-2" />
-          <Pill className="h-6 w-6 text-primary ml-2" />
         </div>
         
         <div className="flex items-center space-x-4">

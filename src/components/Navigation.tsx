@@ -36,11 +36,11 @@ export const Navigation: React.FC<NavigationProps> = ({
           )}
           
           <div className="flex items-center">
+            <Pill className="h-6 w-6 text-primary mr-2" />
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               {title}
             </span>
             <Syringe className="h-6 w-6 text-secondary ml-2" />
-            <Pill className="h-6 w-6 text-primary ml-2" />
           </div>
         </div>
         

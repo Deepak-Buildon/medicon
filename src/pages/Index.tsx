@@ -72,9 +72,9 @@ const IndexContent = () => {
         <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
+              <Pill className="h-12 w-12 text-primary mr-4 drop-shadow-sm" />
               <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-12 w-12 text-secondary ml-4 drop-shadow-sm" />
-              <Pill className="h-12 w-12 text-primary ml-4 drop-shadow-sm" />
             </div>
             <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
               India's BEST Pharmaceutical Delivery App
@@ -253,9 +253,9 @@ const IndexContent = () => {
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
+              <Pill className="h-10 w-10 text-primary mr-3 drop-shadow-sm" />
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-10 w-10 text-secondary ml-3 drop-shadow-sm" />
-              <Pill className="h-10 w-10 text-primary ml-3 drop-shadow-sm" />
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers
@@ -393,9 +393,9 @@ const IndexContent = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center">
+              <Pill className="h-6 w-6 text-primary mr-2" />
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</span>
               <Syringe className="h-6 w-6 text-secondary ml-2" />
-              <Pill className="h-6 w-6 text-primary ml-2" />
             </div>
           </div>
         </header>
