@@ -79,10 +79,21 @@ const IndexContent = () => {
             <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
               India's BEST Pharmaceutical Delivery App
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers across India
             </p>
-            <Button 
+            
+            {/* Hero Infographic */}
+            <div className="mb-12 relative">
+              <img 
+                src="https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=800&h=400&fit=crop&crop=center" 
+                alt="Modern technology for healthcare delivery"
+                className="w-full max-w-4xl mx-auto rounded-2xl shadow-2xl"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl"></div>
+            </div>
+            
+            <Button
               onClick={() => {
                 setShowWelcome(false);
                 setShowPhoneVerification(true);
@@ -263,6 +274,14 @@ const IndexContent = () => {
           </div>
 
           {/* User Type Selection */}
+          <div className="mb-16 text-center">
+            <img 
+              src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=300&fit=crop&crop=center" 
+              alt="Choose your role in QuickDose"
+              className="w-full max-w-2xl mx-auto rounded-xl shadow-lg mb-8"
+            />
+          </div>
+          
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 group" 
                   onClick={() => setUserType('buyer')}>
@@ -444,11 +463,25 @@ const IndexContent = () => {
               </TabsList>
               
               <TabsContent value="search" className="space-y-6">
+                <div className="mb-8">
+                  <img 
+                    src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&h=200&fit=crop&crop=center" 
+                    alt="Search and discover medicines"
+                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
+                  />
+                </div>
                 <h1 className="text-3xl font-bold">Find Your Medicine</h1>
                 <MedicineList />
               </TabsContent>
 
               <TabsContent value="cart" className="space-y-6">
+                <div className="mb-8">
+                  <img 
+                    src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=600&h=200&fit=crop&crop=center" 
+                    alt="Your shopping cart"
+                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
+                  />
+                </div>
                 <h1 className="text-3xl font-bold">My Cart</h1>
                 <Cart />
               </TabsContent>
@@ -493,6 +526,13 @@ const IndexContent = () => {
               </TabsList>
               
               <TabsContent value="dashboard" className="space-y-6">
+                <div className="mb-8">
+                  <img 
+                    src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=600&h=200&fit=crop&crop=center" 
+                    alt="Store management dashboard"
+                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
+                  />
+                </div>
                 <h1 className="text-3xl font-bold">Store Dashboard</h1>
                 <div className="grid md:grid-cols-3 gap-6">
                   <Card>
@@ -523,6 +563,13 @@ const IndexContent = () => {
               </TabsContent>
               
               <TabsContent value="inventory" className="space-y-6">
+                <div className="mb-8">
+                  <img 
+                    src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=200&fit=crop&crop=center" 
+                    alt="Inventory management system"
+                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
+                  />
+                </div>
                 <InventoryManagement />
               </TabsContent>
               
