@@ -68,8 +68,9 @@ const IndexContent = () => {
   // Show welcome page first
   if (showWelcome) {
     return (
-      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-[image:var(--gradient-bg)] medicine-bg relative">
+        <div className="absolute inset-0 bg-white/80"></div>
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
               <Pill className="h-12 w-12 text-primary mr-4 drop-shadow-sm" />
@@ -83,15 +84,6 @@ const IndexContent = () => {
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers across India
             </p>
             
-            {/* Hero Infographic */}
-            <div className="mb-12 relative">
-              <img 
-                src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=400&fit=crop&crop=center" 
-                alt="Healthcare and medicine delivery"
-                className="w-full max-w-4xl mx-auto rounded-2xl shadow-2xl"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl"></div>
-            </div>
             
             <Button
               onClick={() => {
@@ -111,8 +103,9 @@ const IndexContent = () => {
   // Show phone verification page
   if (showPhoneVerification && !showOTPVerification) {
     return (
-      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+      <div className="min-h-screen tablet-bg relative">
+        <div className="absolute inset-0 bg-white/85"></div>
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
           <div className="max-w-md w-full">
             <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
               <CardHeader className="text-center">
@@ -176,8 +169,9 @@ const IndexContent = () => {
   // Show OTP verification page
   if (showOTPVerification) {
     return (
-      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+      <div className="min-h-screen pills-bg relative">
+        <div className="absolute inset-0 bg-white/85"></div>
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
           <div className="max-w-md w-full">
             <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
               <CardHeader className="text-center">
@@ -259,8 +253,9 @@ const IndexContent = () => {
 
   if (userType === null) {
     return (
-      <div className="min-h-screen bg-[image:var(--gradient-bg)]">
-        <div className="container mx-auto px-4 py-16">
+      <div className="min-h-screen pills-bg relative">
+        <div className="absolute inset-0 bg-white/80"></div>
+        <div className="container mx-auto px-4 py-16 relative z-10">
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
@@ -274,13 +269,6 @@ const IndexContent = () => {
           </div>
 
           {/* User Type Selection */}
-          <div className="mb-16 text-center">
-            <img 
-              src="https://images.unsplash.com/photo-1500673922987-e212871fec22?w=600&h=300&fit=crop&crop=center" 
-              alt="Medicine and healthcare choices"
-              className="w-full max-w-2xl mx-auto rounded-xl shadow-lg mb-8"
-            />
-          </div>
           
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 group" 
@@ -400,8 +388,9 @@ const IndexContent = () => {
 
   if (showSettings) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b bg-card shadow-sm">
+      <div className="min-h-screen tablet-bg relative">
+        <div className="absolute inset-0 bg-white/90"></div>
+        <header className="border-b bg-card/90 shadow-sm relative z-10">
           <div className="container mx-auto px-4 py-4 flex items-center">
             <Button 
               variant="ghost" 
@@ -419,7 +408,7 @@ const IndexContent = () => {
           </div>
         </header>
         
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 relative z-10">
           <Settings 
             userType={userType!}
             onSwitchMode={() => {
@@ -436,7 +425,8 @@ const IndexContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen medicine-bg relative">
+      <div className="absolute inset-0 bg-white/90"></div>
       {/* Header */}
       <HeaderWithCart 
         userType={userType}
@@ -451,7 +441,7 @@ const IndexContent = () => {
       />
 
       {/* Content based on user type */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
           {userType === 'buyer' ? (
             <>
@@ -463,25 +453,11 @@ const IndexContent = () => {
               </TabsList>
               
               <TabsContent value="search" className="space-y-6">
-                <div className="mb-8">
-                  <img 
-                    src="https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=600&h=200&fit=crop&crop=center" 
-                    alt="Medicine search and pharmacy"
-                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
-                  />
-                </div>
                 <h1 className="text-3xl font-bold">Find Your Medicine</h1>
                 <MedicineList />
               </TabsContent>
 
               <TabsContent value="cart" className="space-y-6">
-                <div className="mb-8">
-                  <img 
-                    src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=600&h=200&fit=crop&crop=center" 
-                    alt="Your shopping cart"
-                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
-                  />
-                </div>
                 <h1 className="text-3xl font-bold">My Cart</h1>
                 <Cart />
               </TabsContent>
@@ -526,13 +502,6 @@ const IndexContent = () => {
               </TabsList>
               
               <TabsContent value="dashboard" className="space-y-6">
-                <div className="mb-8">
-                  <img 
-                    src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=600&h=200&fit=crop&crop=center" 
-                    alt="Store management dashboard"
-                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
-                  />
-                </div>
                 <h1 className="text-3xl font-bold">Store Dashboard</h1>
                 <div className="grid md:grid-cols-3 gap-6">
                   <Card>
@@ -563,13 +532,6 @@ const IndexContent = () => {
               </TabsContent>
               
               <TabsContent value="inventory" className="space-y-6">
-                <div className="mb-8">
-                  <img 
-                    src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=600&h=200&fit=crop&crop=center" 
-                    alt="Medicine inventory management"
-                    className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
-                  />
-                </div>
                 <InventoryManagement />
               </TabsContent>
               

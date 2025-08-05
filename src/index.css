@@ -37,10 +37,12 @@ Beautiful gradient-based theme with medical blue/green palette
     --input: 210 40% 94%;
     --ring: 0 84% 60%;
 
-    /* Custom red-themed gradient variables */
+    /* Custom red-themed gradient variables with medicine backgrounds */
     --gradient-primary: linear-gradient(135deg, hsl(0 84% 60%), hsl(350 85% 55%));
     --gradient-secondary: linear-gradient(135deg, hsl(350 85% 55%), hsl(5 90% 65%));
-    --gradient-bg: linear-gradient(135deg, hsl(0 84% 97%), hsl(350 85% 97%));
+    --gradient-bg: linear-gradient(135deg, hsl(0 84% 97% / 0.9), hsl(350 85% 97% / 0.9)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
+    --medicine-bg: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1920&h=1080&fit=crop&crop=center');
+    --tablet-bg: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1920&h=1080&fit=crop&crop=center');
     
     /* Shadows with red primary color */
     --shadow-elegant: 0 10px 30px -10px hsl(0 84% 60% / 0.2);
@@ -95,10 +97,12 @@ Beautiful gradient-based theme with medical blue/green palette
     --input: 215 20% 20%;
     --ring: 0 84% 65%;
 
-    /* Dark mode red-themed gradients */
+    /* Dark mode red-themed gradients with medicine backgrounds */
     --gradient-primary: linear-gradient(135deg, hsl(0 84% 65%), hsl(350 85% 60%));
     --gradient-secondary: linear-gradient(135deg, hsl(350 85% 60%), hsl(5 90% 70%));
-    --gradient-bg: linear-gradient(135deg, hsl(215 28% 12%), hsl(215 20% 15%));
+    --gradient-bg: linear-gradient(135deg, hsl(215 28% 12% / 0.9), hsl(215 20% 15% / 0.9)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
+    --medicine-bg: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1920&h=1080&fit=crop&crop=center');
+    --tablet-bg: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1920&h=1080&fit=crop&crop=center');
     
     /* Dark mode red-themed shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(0 84% 50% / 0.3);
@@ -121,5 +125,32 @@ Beautiful gradient-based theme with medical blue/green palette
 
   body {
     @apply bg-background text-foreground;
+    background-image: var(--medicine-bg);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  /* Medicine background variants */
+  .medicine-bg {
+    background-image: var(--medicine-bg);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  .tablet-bg {
+    background-image: var(--tablet-bg);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  .pills-bg {
+    background-image: linear-gradient(135deg, hsl(0 84% 60% / 0.1), hsl(350 85% 55% / 0.1)), url('https://images.unsplash.com/photo-1585435557343-3b092031d4de?w=1920&h=1080&fit=crop&crop=center');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 }
