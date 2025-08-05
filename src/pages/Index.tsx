@@ -86,8 +86,8 @@ const IndexContent = () => {
             {/* Hero Infographic */}
             <div className="mb-12 relative">
               <img 
-                src="https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=800&h=400&fit=crop&crop=center" 
-                alt="Modern technology for healthcare delivery"
+                src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=400&fit=crop&crop=center" 
+                alt="Healthcare and medicine delivery"
                 className="w-full max-w-4xl mx-auto rounded-2xl shadow-2xl"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl"></div>
@@ -276,8 +276,8 @@ const IndexContent = () => {
           {/* User Type Selection */}
           <div className="mb-16 text-center">
             <img 
-              src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=300&fit=crop&crop=center" 
-              alt="Choose your role in QuickDose"
+              src="https://images.unsplash.com/photo-1500673922987-e212871fec22?w=600&h=300&fit=crop&crop=center" 
+              alt="Medicine and healthcare choices"
               className="w-full max-w-2xl mx-auto rounded-xl shadow-lg mb-8"
             />
           </div>
@@ -465,8 +465,8 @@ const IndexContent = () => {
               <TabsContent value="search" className="space-y-6">
                 <div className="mb-8">
                   <img 
-                    src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&h=200&fit=crop&crop=center" 
-                    alt="Search and discover medicines"
+                    src="https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=600&h=200&fit=crop&crop=center" 
+                    alt="Medicine search and pharmacy"
                     className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
                   />
                 </div>
@@ -565,8 +565,8 @@ const IndexContent = () => {
               <TabsContent value="inventory" className="space-y-6">
                 <div className="mb-8">
                   <img 
-                    src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=200&fit=crop&crop=center" 
-                    alt="Inventory management system"
+                    src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=600&h=200&fit=crop&crop=center" 
+                    alt="Medicine inventory management"
                     className="w-full max-w-3xl mx-auto rounded-lg shadow-md"
                   />
                 </div>

@@ -17,17 +17,17 @@ Beautiful gradient-based theme with medical blue/green palette
     --popover: 0 0% 100%;
     --popover-foreground: 215 28% 17%;
 
-    --primary: 210 100% 50%;
+    --primary: 0 84% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 100% 70%;
+    --primary-glow: 0 84% 70%;
 
-    --secondary: 180 100% 45%;
+    --secondary: 350 85% 55%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 195 100% 50%;
+    --accent: 5 90% 65%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 85% 60%;
@@ -35,16 +35,16 @@ Beautiful gradient-based theme with medical blue/green palette
 
     --border: 210 40% 90%;
     --input: 210 40% 94%;
-    --ring: 210 100% 50%;
+    --ring: 0 84% 60%;
 
-    /* Custom gradient variables */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 50%), hsl(195 100% 50%));
-    --gradient-secondary: linear-gradient(135deg, hsl(180 100% 45%), hsl(195 100% 50%));
-    --gradient-bg: linear-gradient(135deg, hsl(210 100% 97%), hsl(195 100% 97%));
+    /* Custom red-themed gradient variables */
+    --gradient-primary: linear-gradient(135deg, hsl(0 84% 60%), hsl(350 85% 55%));
+    --gradient-secondary: linear-gradient(135deg, hsl(350 85% 55%), hsl(5 90% 65%));
+    --gradient-bg: linear-gradient(135deg, hsl(0 84% 97%), hsl(350 85% 97%));
     
-    /* Shadows with primary color */
-    --shadow-elegant: 0 10px 30px -10px hsl(210 100% 50% / 0.2);
-    --shadow-glow: 0 0 40px hsl(210 100% 70% / 0.3);
+    /* Shadows with red primary color */
+    --shadow-elegant: 0 10px 30px -10px hsl(0 84% 60% / 0.2);
+    --shadow-glow: 0 0 40px hsl(0 84% 70% / 0.3);
 
     --radius: 0.5rem;
 
@@ -75,17 +75,17 @@ Beautiful gradient-based theme with medical blue/green palette
     --popover: 215 28% 17%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 210 100% 60%;
+    --primary: 0 84% 65%;
     --primary-foreground: 215 28% 17%;
-    --primary-glow: 210 100% 80%;
+    --primary-glow: 0 84% 80%;
 
-    --secondary: 180 100% 55%;
+    --secondary: 350 85% 60%;
     --secondary-foreground: 215 28% 17%;
 
     --muted: 215 20% 25%;
     --muted-foreground: 215 15% 65%;
 
-    --accent: 195 100% 60%;
+    --accent: 5 90% 70%;
     --accent-foreground: 215 28% 17%;
 
     --destructive: 0 85% 60%;
@@ -93,16 +93,16 @@ Beautiful gradient-based theme with medical blue/green palette
 
     --border: 215 20% 25%;
     --input: 215 20% 20%;
-    --ring: 210 100% 60%;
+    --ring: 0 84% 65%;
 
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 60%), hsl(195 100% 60%));
-    --gradient-secondary: linear-gradient(135deg, hsl(180 100% 55%), hsl(195 100% 60%));
+    /* Dark mode red-themed gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(0 84% 65%), hsl(350 85% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(350 85% 60%), hsl(5 90% 70%));
     --gradient-bg: linear-gradient(135deg, hsl(215 28% 12%), hsl(215 20% 15%));
     
-    /* Dark mode shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(210 100% 40% / 0.3);
-    --shadow-glow: 0 0 40px hsl(210 100% 60% / 0.4);
+    /* Dark mode red-themed shadows */
+    --shadow-elegant: 0 10px 30px -10px hsl(0 84% 50% / 0.3);
+    --shadow-glow: 0 0 40px hsl(0 84% 65% / 0.4);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
