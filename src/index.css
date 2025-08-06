@@ -40,7 +40,7 @@ Beautiful gradient-based theme with medical blue/green palette
     /* Custom red-themed gradient variables with medicine backgrounds */
     --gradient-primary: linear-gradient(135deg, hsl(0 84% 60%), hsl(350 85% 55%));
     --gradient-secondary: linear-gradient(135deg, hsl(350 85% 55%), hsl(5 90% 65%));
-    --gradient-bg: linear-gradient(135deg, hsl(0 84% 97% / 0.9), hsl(350 85% 97% / 0.9)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
+    --gradient-bg: linear-gradient(135deg, hsl(0 84% 97% / 0.6), hsl(350 85% 97% / 0.64)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
     --medicine-bg: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1920&h=1080&fit=crop&crop=center');
     --tablet-bg: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1920&h=1080&fit=crop&crop=center');
     
@@ -100,7 +100,7 @@ Beautiful gradient-based theme with medical blue/green palette
     /* Dark mode red-themed gradients with medicine backgrounds */
     --gradient-primary: linear-gradient(135deg, hsl(0 84% 65%), hsl(350 85% 60%));
     --gradient-secondary: linear-gradient(135deg, hsl(350 85% 60%), hsl(5 90% 70%));
-    --gradient-bg: linear-gradient(135deg, hsl(215 28% 12% / 0.9), hsl(215 20% 15% / 0.9)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
+    --gradient-bg: linear-gradient(135deg, hsl(215 28% 12% / 0.6), hsl(215 20% 15% / 0.64)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
     --medicine-bg: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1920&h=1080&fit=crop&crop=center');
     --tablet-bg: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1920&h=1080&fit=crop&crop=center');
     
@@ -148,7 +148,7 @@ Beautiful gradient-based theme with medical blue/green palette
   }
 
   .pills-bg {
-    background-image: linear-gradient(135deg, hsl(0 84% 60% / 0.1), hsl(350 85% 55% / 0.1)), url('https://images.unsplash.com/photo-1585435557343-3b092031d4de?w=1920&h=1080&fit=crop&crop=center');
+    background-image: linear-gradient(135deg, hsl(0 84% 60% / 0.55), hsl(350 85% 55% / 0.6)), url('https://images.unsplash.com/photo-1585435557343-3b092031d4de?w=1920&h=1080&fit=crop&crop=center');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
