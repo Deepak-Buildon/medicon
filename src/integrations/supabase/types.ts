@@ -14,13 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      medical_shops: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          latitude: number
+          license_number: string
+          longitude: number
+          operating_hours: Json | null
+          owner_id: string
+          owner_name: string
+          phone: string
+          postal_code: string
+          services: Json | null
+          shop_name: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          latitude: number
+          license_number: string
+          longitude: number
+          operating_hours?: Json | null
+          owner_id: string
+          owner_name: string
+          phone: string
+          postal_code: string
+          services?: Json | null
+          shop_name: string
+          state: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          latitude?: number
+          license_number?: string
+          longitude?: number
+          operating_hours?: Json | null
+          owner_id?: string
+          owner_name?: string
+          phone?: string
+          postal_code?: string
+          services?: Json | null
+          shop_name?: string
+          state?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          phone: string | null
+          postal_code: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+          user_type: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          user_type?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_distance: {
+        Args: { lat1: number; lon1: number; lat2: number; lon2: number }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
