@@ -14,6 +14,8 @@ import { HeaderWithCart } from "@/components/HeaderWithCart";
 import { Label } from "@/components/ui/label";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 import { Settings } from "@/components/Settings";
+import NearbyShops from "@/components/NearbyShops";
+import ShopRegistration from "@/components/ShopRegistration";
 
 
 const IndexContent = () => {
@@ -445,8 +447,9 @@ const IndexContent = () => {
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
           {userType === 'buyer' ? (
             <>
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="search">Search Medicine</TabsTrigger>
+                <TabsTrigger value="nearby">Nearby Shops</TabsTrigger>
                 <TabsTrigger value="cart">Cart</TabsTrigger>
                 <TabsTrigger value="orders">My Orders</TabsTrigger>
                 <TabsTrigger value="profile">Profile</TabsTrigger>
@@ -455,6 +458,10 @@ const IndexContent = () => {
               <TabsContent value="search" className="space-y-6">
                 <h1 className="text-3xl font-bold">Find Your Medicine</h1>
                 <MedicineList />
+              </TabsContent>
+
+              <TabsContent value="nearby" className="space-y-6">
+                <NearbyShops />
               </TabsContent>
 
               <TabsContent value="cart" className="space-y-6">
@@ -494,8 +501,9 @@ const IndexContent = () => {
             </>
           ) : (
             <>
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                <TabsTrigger value="register">Register Shop</TabsTrigger>
                 <TabsTrigger value="inventory">Inventory</TabsTrigger>
                 <TabsTrigger value="orders">Orders</TabsTrigger>
                 <TabsTrigger value="profile">Store Profile</TabsTrigger>
@@ -529,6 +537,10 @@ const IndexContent = () => {
                     </CardContent>
                   </Card>
                 </div>
+              </TabsContent>
+              
+              <TabsContent value="register" className="space-y-6">
+                <ShopRegistration onSuccess={() => setCurrentTab('dashboard')} />
               </TabsContent>
               
               <TabsContent value="inventory" className="space-y-6">
