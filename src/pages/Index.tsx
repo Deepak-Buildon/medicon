@@ -70,9 +70,8 @@ const IndexContent = () => {
   // Show welcome page first
   if (showWelcome) {
     return (
-      <div className="min-h-screen bg-[image:var(--gradient-bg)] medicine-bg relative">
-        <div className="absolute inset-0 bg-white/80"></div>
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
+      <div className="min-h-screen bg-background dark">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
               <Pill className="h-12 w-12 text-primary mr-4 drop-shadow-sm" />
@@ -105,9 +104,8 @@ const IndexContent = () => {
   // Show phone verification page
   if (showPhoneVerification && !showOTPVerification) {
     return (
-      <div className="min-h-screen tablet-bg relative">
-        <div className="absolute inset-0 bg-white/85"></div>
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
+      <div className="min-h-screen bg-background dark">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="max-w-md w-full">
             <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
               <CardHeader className="text-center">
@@ -171,9 +169,8 @@ const IndexContent = () => {
   // Show OTP verification page
   if (showOTPVerification) {
     return (
-      <div className="min-h-screen pills-bg relative">
-        <div className="absolute inset-0 bg-white/85"></div>
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
+      <div className="min-h-screen bg-background dark">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="max-w-md w-full">
             <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
               <CardHeader className="text-center">
@@ -255,9 +252,8 @@ const IndexContent = () => {
 
   if (userType === null) {
     return (
-      <div className="min-h-screen pills-bg relative">
-        <div className="absolute inset-0 bg-white/80"></div>
-        <div className="container mx-auto px-4 py-16 relative z-10">
+      <div className="min-h-screen bg-background dark">
+        <div className="container mx-auto px-4 py-16">
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
@@ -427,159 +423,181 @@ const IndexContent = () => {
   }
 
   return (
-    <div className="min-h-screen medicine-bg relative">
-      <div className="absolute inset-0 bg-white/90"></div>
-      {/* Header */}
-      <HeaderWithCart 
-        userType={userType}
-        onSwitchMode={() => {
-          setUserType(null);
-          setIsRegistered(false);
-          setIsLoginMode(true);
-        }}
-        onCartClick={() => setCurrentTab('cart')}
-        onProfileClick={() => setCurrentTab('profile')}
-        onSettingsClick={() => setShowSettings(true)}
-      />
+    <div className="min-h-screen bg-background dark pb-16">
+      {/* Header - Apollo Pharmacy Style */}
+      <header className="bg-primary sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="text-white">
+                <div className="text-sm opacity-80">Delivery Address</div>
+                <div className="font-medium">Select Address ▼</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <Button variant="secondary" size="sm" className="text-sm bg-white/20 text-white border-white/30 hover:bg-white/30">
+                Login
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20 relative"
+                onClick={() => setCurrentTab("cart")}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center">0</div>
+              </Button>
+            </div>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="mt-4 flex items-center gap-3">
+            <div className="flex-1 relative">
+              <Pill className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search Medicines"
+                className="pl-10 bg-white rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
 
-      {/* Content based on user type */}
-      <main className="container mx-auto px-4 py-8 relative z-10">
+      {/* Feature Cards */}
+      <div className="bg-muted/30 py-6">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-3 gap-4">
+            <Card className="p-4 text-center bg-card/80 backdrop-blur-sm">
+              <div className="text-blue-500 text-3xl mb-2">📋</div>
+              <h3 className="font-semibold text-sm">Order Via Prescription</h3>
+              <p className="text-xs text-violet-600 font-medium">UPTO 20% OFF</p>
+            </Card>
+            <Card className="p-4 text-center bg-card/80 backdrop-blur-sm">
+              <div className="text-green-500 text-3xl mb-2">🏷️</div>
+              <h3 className="font-semibold text-sm">Popular Picks At</h3>
+              <p className="text-xs text-violet-600 font-medium">HALF PRICE</p>
+            </Card>
+            <Card className="p-4 text-center bg-card/80 backdrop-blur-sm">
+              <div className="text-teal-500 text-3xl mb-2">🏪</div>
+              <h3 className="font-semibold text-sm">Pharmacy Near Me</h3>
+              <p className="text-xs text-violet-600 font-medium">STORE PURCHASES</p>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-6">
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-          {userType === 'buyer' ? (
-            <>
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="search">Search Medicine</TabsTrigger>
-                <TabsTrigger value="nearby">Nearby Shops</TabsTrigger>
-                <TabsTrigger value="cart">Cart</TabsTrigger>
-                <TabsTrigger value="orders">My Orders</TabsTrigger>
-                <TabsTrigger value="profile">Profile</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="search" className="space-y-6">
-                <h1 className="text-3xl font-bold">Find Your Medicine</h1>
+          <TabsContent value="search" className="space-y-6">
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-1">
                 <MedicineList />
-              </TabsContent>
+              </div>
+            </div>
+          </TabsContent>
 
-              <TabsContent value="nearby" className="space-y-6">
-                <NearbyShops />
-              </TabsContent>
+          <TabsContent value="cart">
+            <Cart />
+          </TabsContent>
 
-              <TabsContent value="cart" className="space-y-6">
-                <h1 className="text-3xl font-bold">My Cart</h1>
-                <Cart />
-              </TabsContent>
-              
-              <TabsContent value="orders" className="space-y-6">
-                <h1 className="text-3xl font-bold">My Orders</h1>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">Order history will be displayed here...</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="profile" className="space-y-6">
-                <h1 className="text-3xl font-bold">My Profile</h1>
-                <div className="grid gap-6">
-                  <ProfilePhoto />
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center">
-                          <User className="h-8 w-8 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold">John Doe</h3>
-                          <p className="text-muted-foreground">Customer since 2024</p>
-                          <p className="text-sm text-muted-foreground">Phone: {phoneNumber}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-            </>
-          ) : (
+          {userType === 'buyer' && (
+            <TabsContent value="nearby">
+              <NearbyShops />
+            </TabsContent>
+          )}
+
+          {userType === 'seller' && (
             <>
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                <TabsTrigger value="register">Register Shop</TabsTrigger>
-                <TabsTrigger value="inventory">Inventory</TabsTrigger>
-                <TabsTrigger value="orders">Orders</TabsTrigger>
-                <TabsTrigger value="profile">Store Profile</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="dashboard" className="space-y-6">
-                <h1 className="text-3xl font-bold">Store Dashboard</h1>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Today's Orders</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">0</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Revenue</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">₹0</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Products</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">0</p>
-                    </CardContent>
-                  </Card>
-                </div>
+              <TabsContent value="register">
+                <ShopRegistration />
               </TabsContent>
-              
-              <TabsContent value="register" className="space-y-6">
-                <ShopRegistration onSuccess={() => setCurrentTab('dashboard')} />
-              </TabsContent>
-              
-              <TabsContent value="inventory" className="space-y-6">
+              <TabsContent value="inventory">
                 <InventoryManagement />
-              </TabsContent>
-              
-              <TabsContent value="orders" className="space-y-6">
-                <h1 className="text-3xl font-bold">Customer Orders</h1>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">Customer orders will be displayed here...</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="profile" className="space-y-6">
-                <h1 className="text-3xl font-bold">Store Profile</h1>
-                <div className="grid gap-6">
-                  <ProfilePhoto />
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-16 w-16 bg-secondary/10 rounded-full flex items-center justify-center">
-                          <Store className="h-8 w-8 text-secondary" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold">ABC Pharmacy</h3>
-                          <p className="text-muted-foreground">Licensed since 2020</p>
-                          <p className="text-sm text-muted-foreground">Phone: {phoneNumber}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
               </TabsContent>
             </>
           )}
+
+          <TabsContent value="profile" className="space-y-6">
+            <div className="max-w-2xl mx-auto">
+              <Card className="bg-card/80 backdrop-blur-sm">
+                <CardHeader className="text-center">
+                  <ProfilePhoto />
+                  <CardTitle className="text-2xl text-primary">
+                    User Profile
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your account settings and preferences
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button 
+                    className="w-full bg-primary hover:bg-primary/90"
+                    onClick={() => setShowSettings(true)}
+                  >
+                    Open Settings
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    onClick={() => {
+                      setIsRegistered(false);
+                      setUserType(null);
+                      setCurrentTab('search');
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
+
+      {/* Bottom Navigation - Apollo Style */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
+        <div className="grid grid-cols-5 py-2">
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 p-2 h-auto"
+            onClick={() => setCurrentTab("search")}
+          >
+            <Pill className={`h-5 w-5 ${currentTab === 'search' ? 'text-primary' : 'text-muted-foreground'}`} />
+            <span className={`text-xs ${currentTab === 'search' ? 'text-primary' : 'text-muted-foreground'}`}>Medicines</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 p-2 h-auto"
+          >
+            <User className="h-5 w-5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Consult Doc</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 p-2 h-auto"
+          >
+            <Syringe className="h-5 w-5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Lab Tests</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 p-2 h-auto"
+          >
+            <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Insurance</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 p-2 h-auto"
+            onClick={() => setCurrentTab("profile")}
+          >
+            <User className={`h-5 w-5 ${currentTab === 'profile' ? 'text-primary' : 'text-muted-foreground'}`} />
+            <span className={`text-xs ${currentTab === 'profile' ? 'text-primary' : 'text-muted-foreground'}`}>Health Records</span>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

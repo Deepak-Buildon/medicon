@@ -9,25 +9,25 @@ Beautiful gradient-based theme with medical blue/green palette
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 215 28% 17%;
+    --foreground: 0 0% 10%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 28% 17%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 17%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 0 84% 60%;
+    --primary: 150 100% 35%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 0 84% 70%;
+    --primary-glow: 150 100% 45%;
 
-    --secondary: 350 85% 55%;
+    --secondary: 270 95% 25%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 5 90% 65%;
+    --accent: 270 80% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 85% 60%;
@@ -35,78 +35,72 @@ Beautiful gradient-based theme with medical blue/green palette
 
     --border: 210 40% 90%;
     --input: 210 40% 94%;
-    --ring: 0 84% 60%;
+    --ring: 150 100% 35%;
 
-    /* Custom red-themed gradient variables with medicine backgrounds */
-    --gradient-primary: linear-gradient(135deg, hsl(0 84% 60%), hsl(350 85% 55%));
-    --gradient-secondary: linear-gradient(135deg, hsl(350 85% 55%), hsl(5 90% 65%));
-    --gradient-bg: linear-gradient(135deg, hsl(0 84% 97% / 0.25), hsl(350 85% 97% / 0.30)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
-    --medicine-bg: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1920&h=1080&fit=crop&crop=center');
-    --tablet-bg: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1920&h=1080&fit=crop&crop=center');
+    /* Violet and teal gradient variables */
+    --gradient-primary: linear-gradient(135deg, hsl(150 100% 35%), hsl(270 95% 25%));
+    --gradient-secondary: linear-gradient(135deg, hsl(270 95% 25%), hsl(270 80% 50%));
+    --gradient-bg: linear-gradient(135deg, hsl(270 80% 97% / 0.25), hsl(150 100% 97% / 0.30));
+    --medicine-bg: linear-gradient(135deg, hsl(270 80% 97% / 0.25), hsl(150 100% 97% / 0.30));
+    --tablet-bg: linear-gradient(135deg, hsl(270 80% 97% / 0.25), hsl(150 100% 97% / 0.30));
     
-    /* Shadows with red primary color */
-    --shadow-elegant: 0 10px 30px -10px hsl(0 84% 60% / 0.2);
-    --shadow-glow: 0 0 40px hsl(0 84% 70% / 0.3);
+    /* Shadows with violet/teal colors */
+    --shadow-elegant: 0 10px 30px -10px hsl(270 95% 25% / 0.2);
+    --shadow-glow: 0 0 40px hsl(150 100% 35% / 0.3);
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 215 28% 17%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
 
-    --card: 215 28% 17%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 215 28% 17%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 0 84% 65%;
-    --primary-foreground: 215 28% 17%;
-    --primary-glow: 0 84% 80%;
+    --primary: 150 100% 45%;
+    --primary-foreground: 0 0% 5%;
+    --primary-glow: 150 100% 55%;
 
-    --secondary: 350 85% 60%;
-    --secondary-foreground: 215 28% 17%;
+    --secondary: 270 95% 35%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 215 20% 25%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 5 90% 70%;
-    --accent-foreground: 215 28% 17%;
+    --accent: 270 80% 60%;
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 25%;
-    --input: 215 20% 20%;
-    --ring: 0 84% 65%;
+    --border: 0 0% 20%;
+    --input: 0 0% 12%;
+    --ring: 150 100% 45%;
 
-    /* Dark mode red-themed gradients with medicine backgrounds */
-    --gradient-primary: linear-gradient(135deg, hsl(0 84% 65%), hsl(350 85% 60%));
-    --gradient-secondary: linear-gradient(135deg, hsl(350 85% 60%), hsl(5 90% 70%));
-    --gradient-bg: linear-gradient(135deg, hsl(215 28% 12% / 0.25), hsl(215 20% 15% / 0.30)), url('https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1920&h=1080&fit=crop&crop=center');
-    --medicine-bg: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1920&h=1080&fit=crop&crop=center');
-    --tablet-bg: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1920&h=1080&fit=crop&crop=center');
+    /* Dark mode violet/teal gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(150 100% 45%), hsl(270 95% 35%));
+    --gradient-secondary: linear-gradient(135deg, hsl(270 95% 35%), hsl(270 80% 60%));
+    --gradient-bg: linear-gradient(135deg, hsl(0 0% 3% / 0.95), hsl(0 0% 8% / 0.98));
+    --medicine-bg: linear-gradient(135deg, hsl(0 0% 3% / 0.95), hsl(0 0% 8% / 0.98));
+    --tablet-bg: linear-gradient(135deg, hsl(0 0% 3% / 0.95), hsl(0 0% 8% / 0.98));
     
-    /* Dark mode red-themed shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(0 84% 50% / 0.3);
-    --shadow-glow: 0 0 40px hsl(0 84% 65% / 0.4);
+    /* Dark mode violet/teal shadows */
+    --shadow-elegant: 0 10px 30px -10px hsl(270 95% 35% / 0.3);
+    --shadow-glow: 0 0 40px hsl(150 100% 45% / 0.4);
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -125,11 +119,7 @@ Beautiful gradient-based theme with medical blue/green palette
 
   body {
     @apply bg-background text-foreground;
-    background-image: var(--medicine-bg);
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+    background: var(--medicine-bg);
   }
 
   /* Medicine background variants */
