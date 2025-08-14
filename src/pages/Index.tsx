@@ -16,6 +16,7 @@ import { ProfilePhoto } from "@/components/ProfilePhoto";
 import { Settings } from "@/components/Settings";
 import NearbyShops from "@/components/NearbyShops";
 import ShopRegistration from "@/components/ShopRegistration";
+import UserLocationManager from "@/components/UserLocationManager";
 
 
 const IndexContent = () => {
@@ -520,7 +521,7 @@ const IndexContent = () => {
           )}
 
           <TabsContent value="profile" className="space-y-6">
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto space-y-6">
               <Card className="bg-card/80 backdrop-blur-sm">
                 <CardHeader className="text-center">
                   <ProfilePhoto />
@@ -551,6 +552,9 @@ const IndexContent = () => {
                   </Button>
                 </CardContent>
               </Card>
+              
+              {/* Location Management */}
+              <UserLocationManager userType={userType} />
             </div>
           </TabsContent>
         </Tabs>
