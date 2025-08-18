@@ -431,6 +431,10 @@ const IndexContent = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="text-white">
+                <div className="flex items-center mb-1">
+                  <Pill className="h-4 w-4 text-white mr-2" />
+                  <span className="text-sm font-semibold">QuickDose</span>
+                </div>
                 <div className="text-sm opacity-80">Delivery Address</div>
                 <div className="font-medium">Select Address ▼</div>
               </div>
