@@ -17,8 +17,6 @@ import { Settings } from "@/components/Settings";
 import NearbyShops from "@/components/NearbyShops";
 import ShopRegistration from "@/components/ShopRegistration";
 import UserLocationManager from "@/components/UserLocationManager";
-
-
 const IndexContent = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showPhoneVerification, setShowPhoneVerification] = useState(false);
@@ -40,7 +38,6 @@ const IndexContent = () => {
       setRegisteredNumbers(JSON.parse(saved));
     }
   }, []);
-
   const generateOTP = () => {
     const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedOTP(newOTP);
@@ -48,14 +45,12 @@ const IndexContent = () => {
     console.log('Generated OTP:', newOTP);
     alert(`Your OTP is: ${newOTP} (In production, this would be sent via SMS)`);
   };
-
   const verifyOTP = () => {
     if (otp === generatedOTP) {
       // Save the verified phone number
       const updatedNumbers = [...registeredNumbers, phoneNumber];
       setRegisteredNumbers(updatedNumbers);
       localStorage.setItem('registeredNumbers', JSON.stringify(updatedNumbers));
-      
       setShowOTPVerification(false);
       setShowPhoneVerification(false);
       setShowWelcome(false);
@@ -63,15 +58,13 @@ const IndexContent = () => {
       alert('Invalid OTP. Please try again.');
     }
   };
-
   const checkPhoneNumber = (phone: string) => {
     return registeredNumbers.includes(phone);
   };
 
   // Show welcome page first
   if (showWelcome) {
-    return (
-      <div className="min-h-screen bg-background dark">
+    return <div className="min-h-screen bg-background dark">
         <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
@@ -87,25 +80,20 @@ const IndexContent = () => {
             </p>
             
             
-            <Button
-              onClick={() => {
-                setShowWelcome(false);
-                setShowPhoneVerification(true);
-              }}
-              className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
-            >
+            <Button onClick={() => {
+            setShowWelcome(false);
+            setShowPhoneVerification(true);
+          }} className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
               Get Started
             </Button>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Show phone verification page
   if (showPhoneVerification && !showOTPVerification) {
-    return (
-      <div className="min-h-screen bg-background dark">
+    return <div className="min-h-screen bg-background dark">
         <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="max-w-md w-full">
             <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
@@ -121,56 +109,39 @@ const IndexContent = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+91 XXXXX XXXXX"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="text-lg"
-                  />
+                  <Input id="phone" type="tel" placeholder="+91 XXXXX XXXXX" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="text-lg" />
                 </div>
-                <Button 
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
-                  onClick={() => {
-                    if (phoneNumber.length >= 10) {
-                      if (checkPhoneNumber(phoneNumber)) {
-                        setShowPhoneVerification(false);
-                        setShowWelcome(false);
-                      } else {
-                        generateOTP();
-                        setShowOTPVerification(true);
-                      }
-                    } else {
-                      alert('Please enter a valid phone number');
-                    }
-                  }}
-                  disabled={!phoneNumber}
-                >
+                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300" onClick={() => {
+                if (phoneNumber.length >= 10) {
+                  if (checkPhoneNumber(phoneNumber)) {
+                    setShowPhoneVerification(false);
+                    setShowWelcome(false);
+                  } else {
+                    generateOTP();
+                    setShowOTPVerification(true);
+                  }
+                } else {
+                  alert('Please enter a valid phone number');
+                }
+              }} disabled={!phoneNumber}>
                   {checkPhoneNumber(phoneNumber) ? 'Continue' : 'Send OTP'}
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => {
-                    setShowPhoneVerification(false);
-                    setShowWelcome(true);
-                  }}
-                >
+                <Button variant="outline" className="w-full" onClick={() => {
+                setShowPhoneVerification(false);
+                setShowWelcome(true);
+              }}>
                   Back
                 </Button>
               </CardContent>
             </Card>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Show OTP verification page
   if (showOTPVerification) {
-    return (
-      <div className="min-h-screen bg-background dark">
+    return <div className="min-h-screen bg-background dark">
         <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="max-w-md w-full">
             <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
@@ -186,39 +157,19 @@ const IndexContent = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="otp">6-Digit OTP</Label>
-                  <Input
-                    id="otp"
-                    type="text"
-                    placeholder="000000"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className="text-lg text-center tracking-widest"
-                    maxLength={6}
-                  />
+                  <Input id="otp" type="text" placeholder="000000" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} className="text-lg text-center tracking-widest" maxLength={6} />
                 </div>
-                <Button 
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
-                  onClick={verifyOTP}
-                  disabled={otp.length !== 6}
-                >
+                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300" onClick={verifyOTP} disabled={otp.length !== 6}>
                   Verify OTP
                 </Button>
                 <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => {
-                      setShowOTPVerification(false);
-                      setOtp('');
-                    }}
-                  >
+                  <Button variant="outline" className="flex-1" onClick={() => {
+                  setShowOTPVerification(false);
+                  setOtp('');
+                }}>
                     Back
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    className="flex-1"
-                    onClick={generateOTP}
-                  >
+                  <Button variant="ghost" className="flex-1" onClick={generateOTP}>
                     Resend OTP
                   </Button>
                 </div>
@@ -226,34 +177,19 @@ const IndexContent = () => {
             </Card>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Show login/registration forms if user type is selected but not authenticated
   if (userType && !isRegistered) {
     if (isLoginMode) {
-      return (
-        <LoginForm 
-          userType={userType} 
-          onLoginComplete={() => setIsRegistered(true)}
-          onSwitchToRegister={() => setIsLoginMode(false)}
-        />
-      );
+      return <LoginForm userType={userType} onLoginComplete={() => setIsRegistered(true)} onSwitchToRegister={() => setIsLoginMode(false)} />;
     } else {
-      return (
-        <RegistrationForm 
-          userType={userType} 
-          onRegistrationComplete={() => setIsRegistered(true)}
-          onSwitchToLogin={() => setIsLoginMode(true)}
-        />
-      );
+      return <RegistrationForm userType={userType} onRegistrationComplete={() => setIsRegistered(true)} onSwitchToLogin={() => setIsLoginMode(true)} />;
     }
   }
-
   if (userType === null) {
-    return (
-      <div className="min-h-screen bg-background dark">
+    return <div className="min-h-screen bg-background dark">
         <div className="container mx-auto px-4 py-16">
           {/* Header */}
           <div className="text-center mb-16">
@@ -270,8 +206,7 @@ const IndexContent = () => {
           {/* User Type Selection */}
           
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 group" 
-                  onClick={() => setUserType('buyer')}>
+            <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 group" onClick={() => setUserType('buyer')}>
               <CardHeader className="text-center pb-4">
                 <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full w-fit shadow-inner group-hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   <ShoppingBag className="h-8 w-8 text-primary" />
@@ -297,22 +232,17 @@ const IndexContent = () => {
                 <Button className="w-full mt-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   Start Shopping
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setUserType('buyer');
-                    setIsLoginMode(true);
-                  }}
-                >
+                <Button variant="outline" className="w-full mt-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={e => {
+                e.stopPropagation();
+                setUserType('buyer');
+                setIsLoginMode(true);
+              }}>
                   Login as Buyer
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-secondary/30 group" 
-                  onClick={() => setUserType('seller')}>
+            <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-secondary/30 group" onClick={() => setUserType('seller')}>
               <CardHeader className="text-center pb-4">
                 <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-full w-fit shadow-inner group-hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   <Store className="h-8 w-8 text-secondary" />
@@ -338,15 +268,11 @@ const IndexContent = () => {
                 <Button className="w-full mt-4 bg-gradient-to-r from-secondary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
                   Register Your Store
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setUserType('seller');
-                    setIsLoginMode(true);
-                  }}
-                >
+                <Button variant="outline" className="w-full mt-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground" onClick={e => {
+                e.stopPropagation();
+                setUserType('seller');
+                setIsLoginMode(true);
+              }}>
                   Login as Seller
                 </Button>
               </CardContent>
@@ -381,22 +307,14 @@ const IndexContent = () => {
             </div>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (showSettings) {
-    return (
-      <div className="min-h-screen tablet-bg relative">
+    return <div className="min-h-screen tablet-bg relative">
         <div className="absolute inset-0 bg-white/90"></div>
         <header className="border-b bg-card/90 shadow-sm relative z-10">
           <div className="container mx-auto px-4 py-4 flex items-center">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setShowSettings(false)}
-              className="hover:bg-primary/10 mr-4"
-            >
+            <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)} className="hover:bg-primary/10 mr-4">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center">
@@ -408,32 +326,25 @@ const IndexContent = () => {
         </header>
         
         <main className="container mx-auto px-4 py-8 relative z-10">
-          <Settings 
-            userType={userType!}
-            onSwitchMode={() => {
-              setUserType(null);
-              setIsRegistered(false);
-              setIsLoginMode(true);
-              setShowSettings(false);
-            }}
-            onClose={() => setShowSettings(false)}
-          />
+          <Settings userType={userType!} onSwitchMode={() => {
+          setUserType(null);
+          setIsRegistered(false);
+          setIsLoginMode(true);
+          setShowSettings(false);
+        }} onClose={() => setShowSettings(false)} />
         </main>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background dark pb-16">
+  return <div className="min-h-screen bg-background dark pb-16">
       {/* Header - Apollo Pharmacy Style */}
       <header className="bg-primary sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-3 bg-[#451c8d]">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="text-white">
                 <div className="flex items-center mb-1">
                   <Pill className="h-4 w-4 text-white mr-2" />
-                  <span className="text-sm font-semibold">QuickDose</span>
+                  <span className="mx-0 my-[2px] py-[3px] px-[3px] text-2xl font-extrabold text-black">QuickDose</span>
                 </div>
                 <div className="text-sm opacity-80">Delivery Address</div>
                 <div className="font-medium">Select Address ▼</div>
@@ -444,12 +355,7 @@ const IndexContent = () => {
               <Button variant="secondary" size="sm" className="text-sm bg-white/20 text-white border-white/30 hover:bg-white/30">
                 Login
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/20 relative"
-                onClick={() => setCurrentTab("cart")}
-              >
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" onClick={() => setCurrentTab("cart")}>
                 <ShoppingCart className="h-5 w-5" />
                 <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center">0</div>
               </Button>
@@ -460,10 +366,7 @@ const IndexContent = () => {
           <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 relative">
               <Pill className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search Medicines"
-                className="pl-10 bg-white rounded-lg"
-              />
+              <Input placeholder="Search Medicines" className="pl-10 bg-white rounded-lg" />
             </div>
           </div>
         </div>
@@ -507,22 +410,18 @@ const IndexContent = () => {
             <Cart />
           </TabsContent>
 
-          {userType === 'buyer' && (
-            <TabsContent value="nearby">
+          {userType === 'buyer' && <TabsContent value="nearby">
               <NearbyShops />
-            </TabsContent>
-          )}
+            </TabsContent>}
 
-          {userType === 'seller' && (
-            <>
+          {userType === 'seller' && <>
               <TabsContent value="register">
                 <ShopRegistration />
               </TabsContent>
               <TabsContent value="inventory">
                 <InventoryManagement />
               </TabsContent>
-            </>
-          )}
+            </>}
 
           <TabsContent value="profile" className="space-y-6">
             <div className="max-w-2xl mx-auto space-y-6">
@@ -537,21 +436,14 @@ const IndexContent = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button 
-                    className="w-full bg-primary hover:bg-primary/90"
-                    onClick={() => setShowSettings(true)}
-                  >
+                  <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setShowSettings(true)}>
                     Open Settings
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => {
-                      setIsRegistered(false);
-                      setUserType(null);
-                      setCurrentTab('search');
-                    }}
-                  >
+                  <Button variant="outline" className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => {
+                  setIsRegistered(false);
+                  setUserType(null);
+                  setCurrentTab('search');
+                }}>
                     Logout
                   </Button>
                 </CardContent>
@@ -567,55 +459,33 @@ const IndexContent = () => {
       {/* Bottom Navigation - Apollo Style */}
       <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
         <div className="grid grid-cols-5 py-2">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 p-2 h-auto"
-            onClick={() => setCurrentTab("search")}
-          >
+          <Button variant="ghost" className="flex flex-col items-center gap-1 p-2 h-auto" onClick={() => setCurrentTab("search")}>
             <Pill className={`h-5 w-5 ${currentTab === 'search' ? 'text-primary' : 'text-muted-foreground'}`} />
             <span className={`text-xs ${currentTab === 'search' ? 'text-primary' : 'text-muted-foreground'}`}>Medicines</span>
           </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 p-2 h-auto"
-          >
+          <Button variant="ghost" className="flex flex-col items-center gap-1 p-2 h-auto">
             <User className="h-5 w-5 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Consult Doc</span>
           </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 p-2 h-auto"
-          >
+          <Button variant="ghost" className="flex flex-col items-center gap-1 p-2 h-auto">
             <Syringe className="h-5 w-5 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Lab Tests</span>
           </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 p-2 h-auto"
-          >
+          <Button variant="ghost" className="flex flex-col items-center gap-1 p-2 h-auto">
             <ShoppingBag className="h-5 w-5 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Insurance</span>
           </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 p-2 h-auto"
-            onClick={() => setCurrentTab("profile")}
-          >
+          <Button variant="ghost" className="flex flex-col items-center gap-1 p-2 h-auto" onClick={() => setCurrentTab("profile")}>
             <User className={`h-5 w-5 ${currentTab === 'profile' ? 'text-primary' : 'text-muted-foreground'}`} />
             <span className={`text-xs ${currentTab === 'profile' ? 'text-primary' : 'text-muted-foreground'}`}>Health Records</span>
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 const Index = () => {
-  return (
-    <CartProvider>
+  return <CartProvider>
       <IndexContent />
-    </CartProvider>
-  );
+    </CartProvider>;
 };
-
 export default Index;
