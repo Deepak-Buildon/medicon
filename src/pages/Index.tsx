@@ -17,6 +17,10 @@ import { Settings } from "@/components/Settings";
 import NearbyShops from "@/components/NearbyShops";
 import ShopRegistration from "@/components/ShopRegistration";
 import UserLocationManager from "@/components/UserLocationManager";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
+
 const IndexContent = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showPhoneVerification, setShowPhoneVerification] = useState(false);
@@ -30,6 +34,8 @@ const IndexContent = () => {
   const [currentTab, setCurrentTab] = useState('search');
   const [showSettings, setShowSettings] = useState(false);
   const [registeredNumbers, setRegisteredNumbers] = useState<string[]>([]);
+  const [userLocation, setUserLocation] = useState<string>("");
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
 
   // Check if phone number is already registered
   useEffect(() => {
@@ -61,6 +67,118 @@ const IndexContent = () => {
   const checkPhoneNumber = (phone: string) => {
     return registeredNumbers.includes(phone);
   };
+
+  const handleLocationRequest = async () => {
+    setIsLocationLoading(true);
+    
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by this browser");
+      setIsLocationLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Reverse geocoding to get city name
+          const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw&types=place`
+          );
+          const data = await response.json();
+          const city = data.features?.[0]?.text || "Unknown Location";
+          
+          // Save location to database
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { error } = await supabase
+              .from('profiles')
+              .upsert({
+                user_id: user.id,
+                latitude: latitude,
+                longitude: longitude,
+                city: city,
+                updated_at: new Date().toISOString()
+              });
+            
+            if (error) {
+              console.error('Error saving location:', error);
+              toast.error("Failed to save location");
+            } else {
+              setUserLocation(city);
+              toast.success(`Location saved: ${city}`);
+            }
+          } else {
+            // Save to localStorage for non-authenticated users
+            localStorage.setItem('userLocation', JSON.stringify({
+              latitude,
+              longitude,
+              city
+            }));
+            setUserLocation(city);
+            toast.success(`Location set: ${city}`);
+          }
+        } catch (error) {
+          console.error('Error reverse geocoding:', error);
+          setUserLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          toast.success("Location accessed successfully");
+        }
+        
+        setIsLocationLoading(false);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        setIsLocationLoading(false);
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error("Location access denied. Please enable location permissions.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            toast.error("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            toast.error("Location request timed out.");
+            break;
+          default:
+            toast.error("An unknown error occurred while retrieving location.");
+            break;
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  };
+
+  // Load saved location on component mount
+  useEffect(() => {
+    const loadSavedLocation = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('city')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile?.city) {
+          setUserLocation(profile.city);
+        }
+      } else {
+        const saved = localStorage.getItem('userLocation');
+        if (saved) {
+          const location = JSON.parse(saved);
+          setUserLocation(location.city);
+        }
+      }
+    };
+    
+    loadSavedLocation();
+  }, [isRegistered]);
 
   // Show welcome page first
   if (showWelcome) {
@@ -347,7 +465,14 @@ const IndexContent = () => {
                   <span className="mx-0 my-[2px] py-[3px] px-[3px] text-2xl font-extrabold text-black">QuickDose</span>
                 </div>
                 <div className="text-sm opacity-80">Delivery Address</div>
-                <div className="font-medium">Select Address ▼</div>
+                <Button 
+                  variant="ghost" 
+                  className="font-medium text-white hover:bg-white/20 p-0 h-auto justify-start"
+                  onClick={handleLocationRequest}
+                  disabled={isLocationLoading}
+                >
+                  {isLocationLoading ? "Getting location..." : (userLocation ? userLocation : "Select Address ▼")}
+                </Button>
               </div>
             </div>
             
@@ -486,6 +611,7 @@ const IndexContent = () => {
 const Index = () => {
   return <CartProvider>
       <IndexContent />
+      <Toaster />
     </CartProvider>;
 };
 export default Index;
