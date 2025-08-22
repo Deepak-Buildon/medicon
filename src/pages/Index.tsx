@@ -301,7 +301,7 @@ const IndexContent = () => {
   }
   if (userType === null) {
     return <div className="min-h-screen bg-background dark">
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 py-16 bg-neutral-950">
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
@@ -309,7 +309,7 @@ const IndexContent = () => {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-10 w-10 text-secondary ml-3 drop-shadow-sm" />
             </div>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="max-w-2xl mx-auto text-2xl text-slate-50">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers
             </p>
           </div>
