@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Store, LogIn } from "lucide-react";
-
+import { supabase } from "@/integrations/supabase/client";
 interface LoginFormProps {
   userType: 'buyer' | 'seller';
   onLoginComplete: () => void;
@@ -18,27 +18,67 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
     password: ''
   });
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic validation
+
     if (!formData.email || !formData.password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    // Simulate login
-    toast({
-      title: "Login Successful!",
-      description: `Welcome back to MediConnect!`
-    });
-    
-    onLoginComplete();
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error || !data.user) {
+        toast({
+          title: "Invalid credentials",
+          description: "Email or password is incorrect",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const userId = data.user.id;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_type, city')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (profile?.user_type && profile.user_type !== userType) {
+        await supabase.auth.signOut();
+        toast({
+          title: "Account type mismatch",
+          description: `This account is registered as ${profile.user_type}. Please switch to the correct login.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Login Successful!",
+        description: `Welcome back to MediConnect${profile?.city ? ` — ${profile.city}` : ''}!`,
+      });
+      onLoginComplete();
+    } catch (err) {
+      toast({
+        title: "Unexpected error",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,10 +141,11 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
 
             <Button 
               type="submit" 
+              disabled={loading}
               className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
             >
               <LogIn className="h-4 w-4 mr-2" />
-              Sign In as {userType === 'buyer' ? 'Buyer' : 'Seller'}
+              {loading ? 'Signing in...' : `Sign In as ${userType === 'buyer' ? 'Buyer' : 'Seller'}`}
             </Button>
 
             <div className="text-center pt-4">
