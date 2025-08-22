@@ -176,7 +176,7 @@ const IndexContent = () => {
   // Show welcome page first
   if (showWelcome) {
     return <div className="min-h-screen bg-background dark">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen bg-sky-950">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
               <Pill className="h-12 w-12 text-primary mr-4 drop-shadow-sm" />
