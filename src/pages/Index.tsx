@@ -20,6 +20,7 @@ import UserLocationManager from "@/components/UserLocationManager";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+
 const IndexContent = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showPhoneVerification, setShowPhoneVerification] = useState(false);
@@ -66,99 +67,104 @@ const IndexContent = () => {
   const checkPhoneNumber = (phone: string) => {
     return registeredNumbers.includes(phone);
   };
+
   const handleLocationRequest = async () => {
     setIsLocationLoading(true);
+    
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by this browser");
       setIsLocationLoading(false);
       return;
     }
-    navigator.geolocation.getCurrentPosition(async position => {
-      const {
-        latitude,
-        longitude
-      } = position.coords;
-      try {
-        // Reverse geocoding to get city name
-        const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw&types=place`);
-        const data = await response.json();
-        const city = data.features?.[0]?.text || "Unknown Location";
 
-        // Save location to database
-        const {
-          data: {
-            user
-          }
-        } = await supabase.auth.getUser();
-        if (user) {
-          const {
-            error
-          } = await supabase.from('profiles').upsert({
-            user_id: user.id,
-            latitude: latitude,
-            longitude: longitude,
-            city: city,
-            updated_at: new Date().toISOString()
-          });
-          if (error) {
-            console.error('Error saving location:', error);
-            toast.error("Failed to save location");
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Reverse geocoding to get city name
+          const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw&types=place`
+          );
+          const data = await response.json();
+          const city = data.features?.[0]?.text || "Unknown Location";
+          
+          // Save location to database
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { error } = await supabase
+              .from('profiles')
+              .upsert({
+                user_id: user.id,
+                latitude: latitude,
+                longitude: longitude,
+                city: city,
+                updated_at: new Date().toISOString()
+              });
+            
+            if (error) {
+              console.error('Error saving location:', error);
+              toast.error("Failed to save location");
+            } else {
+              setUserLocation(city);
+              toast.success(`Location saved: ${city}`);
+            }
           } else {
+            // Save to localStorage for non-authenticated users
+            localStorage.setItem('userLocation', JSON.stringify({
+              latitude,
+              longitude,
+              city
+            }));
             setUserLocation(city);
-            toast.success(`Location saved: ${city}`);
+            toast.success(`Location set: ${city}`);
           }
-        } else {
-          // Save to localStorage for non-authenticated users
-          localStorage.setItem('userLocation', JSON.stringify({
-            latitude,
-            longitude,
-            city
-          }));
-          setUserLocation(city);
-          toast.success(`Location set: ${city}`);
+        } catch (error) {
+          console.error('Error reverse geocoding:', error);
+          setUserLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          toast.success("Location accessed successfully");
         }
-      } catch (error) {
-        console.error('Error reverse geocoding:', error);
-        setUserLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-        toast.success("Location accessed successfully");
+        
+        setIsLocationLoading(false);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        setIsLocationLoading(false);
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error("Location access denied. Please enable location permissions.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            toast.error("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            toast.error("Location request timed out.");
+            break;
+          default:
+            toast.error("An unknown error occurred while retrieving location.");
+            break;
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
       }
-      setIsLocationLoading(false);
-    }, error => {
-      console.error('Error getting location:', error);
-      setIsLocationLoading(false);
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          toast.error("Location access denied. Please enable location permissions.");
-          break;
-        case error.POSITION_UNAVAILABLE:
-          toast.error("Location information is unavailable.");
-          break;
-        case error.TIMEOUT:
-          toast.error("Location request timed out.");
-          break;
-        default:
-          toast.error("An unknown error occurred while retrieving location.");
-          break;
-      }
-    }, {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 60000
-    });
+    );
   };
 
   // Load saved location on component mount
   useEffect(() => {
     const loadSavedLocation = async () => {
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const {
-          data: profile
-        } = await supabase.from('profiles').select('city').eq('user_id', user.id).single();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('city')
+          .eq('user_id', user.id)
+          .single();
+        
         if (profile?.city) {
           setUserLocation(profile.city);
         }
@@ -170,13 +176,14 @@ const IndexContent = () => {
         }
       }
     };
+    
     loadSavedLocation();
   }, [isRegistered]);
 
   // Show welcome page first
   if (showWelcome) {
     return <div className="min-h-screen bg-background dark">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen bg-sky-950">
+        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
               <Pill className="h-12 w-12 text-primary mr-4 drop-shadow-sm" />
@@ -301,7 +308,7 @@ const IndexContent = () => {
   }
   if (userType === null) {
     return <div className="min-h-screen bg-background dark">
-        <div className="container mx-auto px-4 py-16 bg-neutral-950">
+        <div className="container mx-auto px-4 py-16">
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-6">
@@ -309,7 +316,7 @@ const IndexContent = () => {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
               <Syringe className="h-10 w-10 text-secondary ml-3 drop-shadow-sm" />
             </div>
-            <p className="max-w-2xl mx-auto text-2xl text-slate-50">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Your trusted marketplace connecting medicine buyers with local pharmacies and retailers
             </p>
           </div>
@@ -455,11 +462,16 @@ const IndexContent = () => {
               <div className="text-white">
                 <div className="flex items-center mb-1">
                   <Pill className="h-4 w-4 text-white mr-2" />
-                  <span className="mx-0 my-[2px] py-[3px] px-[3px] text-4xl text-left font-extrabold text-[#050505]/[0.94]">MEDICON</span>
+                  <span className="mx-0 my-[2px] py-[3px] px-[3px] text-2xl font-extrabold text-black">QuickDose</span>
                 </div>
                 <div className="text-sm opacity-80">Delivery Address</div>
-                <Button variant="ghost" className="font-medium text-white hover:bg-white/20 p-0 h-auto justify-start" onClick={handleLocationRequest} disabled={isLocationLoading}>
-                  {isLocationLoading ? "Getting location..." : userLocation ? userLocation : "Select Address ▼"}
+                <Button 
+                  variant="ghost" 
+                  className="font-medium text-white hover:bg-white/20 p-0 h-auto justify-start"
+                  onClick={handleLocationRequest}
+                  disabled={isLocationLoading}
+                >
+                  {isLocationLoading ? "Getting location..." : (userLocation ? userLocation : "Select Address ▼")}
                 </Button>
               </div>
             </div>

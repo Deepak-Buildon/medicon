@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Store } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+
 interface RegistrationFormProps {
   userType: 'buyer' | 'seller';
   onRegistrationComplete: () => void;
@@ -17,8 +17,6 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    confirmPassword: '',
     phone: '',
     address: '',
     // Seller specific fields
@@ -28,31 +26,14 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
   });
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
+    // Basic validation
     if (!formData.name || !formData.email || !formData.phone || !formData.address) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!formData.password || !formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Please enter and confirm your password",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
         variant: "destructive"
       });
       return;
@@ -67,41 +48,12 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
       return;
     }
 
-    const redirectUrl = `${window.location.origin}/`;
-
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
-    });
-
-    if (error) {
-      toast({
-        title: "Registration failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newUser = data.user;
-    if (newUser) {
-      await supabase.from('profiles').insert({
-        user_id: newUser.id,
-        user_type: userType,
-        display_name: formData.name,
-        phone: formData.phone,
-        address: formData.address,
-      });
-    }
-
+    // Simulate registration
     toast({
       title: "Registration Successful!",
-      description: newUser ? `Welcome to MediConnect as a ${userType}!` : 'Check your email to confirm your account, then sign in.',
+      description: `Welcome to MediConnect as a ${userType}!`
     });
-
+    
     onRegistrationComplete();
   };
 
@@ -157,34 +109,6 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                className="transition-all duration-200 focus:shadow-[var(--shadow-glow)]"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Create a password"
-                className="transition-all duration-200 focus:shadow-[var(--shadow-glow)]"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password *</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Re-enter your password"
                 className="transition-all duration-200 focus:shadow-[var(--shadow-glow)]"
                 required
               />
