@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Store, LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LoginFormProps {
   userType: 'buyer' | 'seller';
@@ -19,7 +20,7 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
   });
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -32,13 +33,34 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
       return;
     }
 
-    // Simulate login
-    toast({
-      title: "Login Successful!",
-      description: `Welcome back to MediConnect!`
-    });
-    
-    onLoginComplete();
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Login Successful!",
+        description: `Welcome back to QuickDose!`
+      });
+      
+      onLoginComplete();
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe, Phone, ArrowLeft } from "lucide-react";
+import { ShoppingBag, Store, Pill, Users, Clock, Shield, ShoppingCart, User, Syringe, ArrowLeft } from "lucide-react";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { LoginForm } from "@/components/LoginForm";
 import { MedicineList } from "@/components/MedicineList";
@@ -20,52 +20,75 @@ import UserLocationManager from "@/components/UserLocationManager";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { User as SupabaseUser, Session } from "@supabase/supabase-js";
 
 const IndexContent = () => {
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [showPhoneVerification, setShowPhoneVerification] = useState(false);
-  const [showOTPVerification, setShowOTPVerification] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState('');
-  const [generatedOTP, setGeneratedOTP] = useState('');
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [userType, setUserType] = useState<'buyer' | 'seller' | null>(null);
-  const [isRegistered, setIsRegistered] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [currentTab, setCurrentTab] = useState('search');
   const [showSettings, setShowSettings] = useState(false);
-  const [registeredNumbers, setRegisteredNumbers] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<string>("");
   const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Check if phone number is already registered
+  // Set up auth state listener
   useEffect(() => {
-    const saved = localStorage.getItem('registeredNumbers');
-    if (saved) {
-      setRegisteredNumbers(JSON.parse(saved));
-    }
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // If user logs out, reset state
+        if (event === 'SIGNED_OUT') {
+          setUserType(null);
+          setIsLoginMode(true);
+          setCurrentTab('search');
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
-  const generateOTP = () => {
-    const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOTP(newOTP);
-    // In production, you would send this OTP via SMS
-    console.log('Generated OTP:', newOTP);
-    alert(`Your OTP is: ${newOTP} (In production, this would be sent via SMS)`);
-  };
-  const verifyOTP = () => {
-    if (otp === generatedOTP) {
-      // Save the verified phone number
-      const updatedNumbers = [...registeredNumbers, phoneNumber];
-      setRegisteredNumbers(updatedNumbers);
-      localStorage.setItem('registeredNumbers', JSON.stringify(updatedNumbers));
-      setShowOTPVerification(false);
-      setShowPhoneVerification(false);
-      setShowWelcome(false);
-    } else {
-      alert('Invalid OTP. Please try again.');
+
+  // Fetch user profile when user is authenticated
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
     }
-  };
-  const checkPhoneNumber = (phone: string) => {
-    return registeredNumbers.includes(phone);
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_type, display_name, address, city, state')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!error && data) {
+        setUserType(data.user_type as 'buyer' | 'seller');
+        
+        // Set location from profile if available
+        if (data.city) {
+          setUserLocation(data.city);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
   };
 
   const handleLocationRequest = async () => {
@@ -89,8 +112,9 @@ const IndexContent = () => {
           const data = await response.json();
           const city = data.address?.city || data.address?.town || data.address?.village || "Unknown Location";
           
-          // Save location to database
-          const { data: { user } } = await supabase.auth.getUser();
+          setUserLocation(city);
+          
+          // Save location to database if user is authenticated
           if (user) {
             const { error } = await supabase
               .from('profiles')
@@ -98,216 +122,65 @@ const IndexContent = () => {
                 user_id: user.id,
                 latitude: latitude,
                 longitude: longitude,
-                city: city,
-                updated_at: new Date().toISOString()
+                city: city
               });
-            
+
             if (error) {
               console.error('Error saving location:', error);
-              toast.error("Failed to save location");
-            } else {
-              setUserLocation(city);
-              toast.success(`Location saved: ${city}`);
             }
-          } else {
-            // Save to localStorage for non-authenticated users
-            localStorage.setItem('userLocation', JSON.stringify({
-              latitude,
-              longitude,
-              city
-            }));
-            setUserLocation(city);
-            toast.success(`Location set: ${city}`);
           }
+          
+          toast.success(`Location set to ${city}`);
         } catch (error) {
-          console.error('Error reverse geocoding:', error);
-          setUserLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-          toast.success("Location accessed successfully");
+          console.error('Error getting location details:', error);
+          setUserLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
         }
         
         setIsLocationLoading(false);
       },
       (error) => {
-        console.error('Error getting location:', error);
+        console.error('Geolocation error:', error);
+        toast.error("Unable to get your location. Please enable location access.");
         setIsLocationLoading(false);
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            toast.error("Location access denied. Please enable location permissions.");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            toast.error("Location information is unavailable.");
-            break;
-          case error.TIMEOUT:
-            toast.error("Location request timed out.");
-            break;
-          default:
-            toast.error("An unknown error occurred while retrieving location.");
-            break;
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
       }
     );
   };
 
-  // Load saved location on component mount
-  useEffect(() => {
-    const loadSavedLocation = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('city')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (profile?.city) {
-          setUserLocation(profile.city);
-        }
-      } else {
-        const saved = localStorage.getItem('userLocation');
-        if (saved) {
-          const location = JSON.parse(saved);
-          setUserLocation(location.city);
-        }
-      }
-    };
-    
-    loadSavedLocation();
-  }, [isRegistered]);
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
+  };
 
-  // Show welcome page first
-  if (showWelcome) {
-    return <div className="min-h-screen bg-background dark">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-8">
-              <Pill className="h-12 w-12 text-primary mr-4 drop-shadow-sm" />
-              <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">QuickDose</h1>
-              <Syringe className="h-12 w-12 text-secondary ml-4 drop-shadow-sm" />
-            </div>
-            <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-              India's BEST Pharmaceutical Delivery App
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              Your trusted marketplace connecting medicine buyers with local pharmacies and retailers across India
-            </p>
-            
-            
-            <Button onClick={() => {
-            setShowWelcome(false);
-            setShowPhoneVerification(true);
-          }} className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
-              Get Started
-            </Button>
-          </div>
-        </div>
-      </div>;
-  }
+  const handleAuthComplete = () => {
+    // Auth state will be handled by the listener
+    // Just refresh user profile
+    fetchUserProfile();
+  };
 
-  // Show phone verification page
-  if (showPhoneVerification && !showOTPVerification) {
-    return <div className="min-h-screen bg-background dark">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
-          <div className="max-w-md w-full">
-            <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full w-fit">
-                  <Phone className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle className="text-2xl">Verify Your Phone</CardTitle>
-                <CardDescription>
-                  Enter your phone number to receive an OTP
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" placeholder="+91 XXXXX XXXXX" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="text-lg" />
-                </div>
-                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300" onClick={() => {
-                if (phoneNumber.length >= 10) {
-                  if (checkPhoneNumber(phoneNumber)) {
-                    setShowPhoneVerification(false);
-                    setShowWelcome(false);
-                  } else {
-                    generateOTP();
-                    setShowOTPVerification(true);
-                  }
-                } else {
-                  alert('Please enter a valid phone number');
-                }
-              }} disabled={!phoneNumber}>
-                  {checkPhoneNumber(phoneNumber) ? 'Continue' : 'Send OTP'}
-                </Button>
-                <Button variant="outline" className="w-full" onClick={() => {
-                setShowPhoneVerification(false);
-                setShowWelcome(true);
-              }}>
-                  Back
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Pill className="h-8 w-8 text-primary mx-auto mb-4 animate-spin" />
+          <p>Loading...</p>
         </div>
-      </div>;
-  }
-
-  // Show OTP verification page
-  if (showOTPVerification) {
-    return <div className="min-h-screen bg-background dark">
-        <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
-          <div className="max-w-md w-full">
-            <Card className="border-2 border-primary/20 shadow-[var(--shadow-elegant)]">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full w-fit">
-                  <Shield className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle className="text-2xl">Enter OTP</CardTitle>
-                <CardDescription>
-                  We've sent a 6-digit code to {phoneNumber}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="otp">6-Digit OTP</Label>
-                  <Input id="otp" type="text" placeholder="000000" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} className="text-lg text-center tracking-widest" maxLength={6} />
-                </div>
-                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300" onClick={verifyOTP} disabled={otp.length !== 6}>
-                  Verify OTP
-                </Button>
-                <div className="flex space-x-2">
-                  <Button variant="outline" className="flex-1" onClick={() => {
-                  setShowOTPVerification(false);
-                  setOtp('');
-                }}>
-                    Back
-                  </Button>
-                  <Button variant="ghost" className="flex-1" onClick={generateOTP}>
-                    Resend OTP
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>;
+      </div>
+    );
   }
 
   // Show login/registration forms if user type is selected but not authenticated
-  if (userType && !isRegistered) {
+  if (userType && !user) {
     if (isLoginMode) {
-      return <LoginForm userType={userType} onLoginComplete={() => setIsRegistered(true)} onSwitchToRegister={() => setIsLoginMode(false)} />;
+      return <LoginForm userType={userType} onLoginComplete={handleAuthComplete} onSwitchToRegister={() => setIsLoginMode(false)} />;
     } else {
-      return <RegistrationForm userType={userType} onRegistrationComplete={() => setIsRegistered(true)} onSwitchToLogin={() => setIsLoginMode(true)} />;
+      return <RegistrationForm userType={userType} onRegistrationComplete={handleAuthComplete} onSwitchToLogin={() => setIsLoginMode(true)} />;
     }
   }
-  if (userType === null) {
-    return <div className="min-h-screen bg-background dark">
+
+  // Show user type selection if no user type is selected or user is not authenticated
+  if (!userType || !user) {
+    return (
+      <div className="min-h-screen bg-background dark">
         <div className="container mx-auto px-4 py-16">
           {/* Header */}
           <div className="text-center mb-16">
@@ -322,7 +195,6 @@ const IndexContent = () => {
           </div>
 
           {/* User Type Selection */}
-          
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card className="hover:shadow-[var(--shadow-elegant)] transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 group" onClick={() => setUserType('buyer')}>
               <CardHeader className="text-center pb-4">
@@ -351,10 +223,10 @@ const IndexContent = () => {
                   Start Shopping
                 </Button>
                 <Button variant="outline" className="w-full mt-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={e => {
-                e.stopPropagation();
-                setUserType('buyer');
-                setIsLoginMode(true);
-              }}>
+                  e.stopPropagation();
+                  setUserType('buyer');
+                  setIsLoginMode(true);
+                }}>
                   Login as Buyer
                 </Button>
               </CardContent>
@@ -387,10 +259,10 @@ const IndexContent = () => {
                   Register Your Store
                 </Button>
                 <Button variant="outline" className="w-full mt-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground" onClick={e => {
-                e.stopPropagation();
-                setUserType('seller');
-                setIsLoginMode(true);
-              }}>
+                  e.stopPropagation();
+                  setUserType('seller');
+                  setIsLoginMode(true);
+                }}>
                   Login as Seller
                 </Button>
               </CardContent>
@@ -425,10 +297,13 @@ const IndexContent = () => {
             </div>
           </div>
         </div>
-      </div>;
+      </div>
+    );
   }
+
   if (showSettings) {
-    return <div className="min-h-screen tablet-bg relative">
+    return (
+      <div className="min-h-screen tablet-bg relative">
         <div className="absolute inset-0 bg-white/90"></div>
         <header className="border-b bg-card/90 shadow-sm relative z-10">
           <div className="container mx-auto px-4 py-4 flex items-center">
@@ -445,15 +320,17 @@ const IndexContent = () => {
         
         <main className="container mx-auto px-4 py-8 relative z-10">
           <Settings userType={userType!} onSwitchMode={() => {
-          setUserType(null);
-          setIsRegistered(false);
-          setIsLoginMode(true);
-          setShowSettings(false);
-        }} onClose={() => setShowSettings(false)} />
+            setUserType(null);
+            setIsLoginMode(true);
+            setShowSettings(false);
+          }} onClose={() => setShowSettings(false)} />
         </main>
-      </div>;
+      </div>
+    );
   }
-  return <div className="min-h-screen bg-background dark pb-16">
+
+  return (
+    <div className="min-h-screen bg-background dark pb-16">
       {/* Header - Apollo Pharmacy Style */}
       <header className="bg-primary sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 bg-[#451c8d]">
@@ -477,8 +354,8 @@ const IndexContent = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button variant="secondary" size="sm" className="text-sm bg-white/20 text-white border-white/30 hover:bg-white/30">
-                Login
+              <Button variant="secondary" size="sm" className="text-sm bg-white/20 text-white border-white/30 hover:bg-white/30" onClick={handleLogout}>
+                Logout
               </Button>
               <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" onClick={() => setCurrentTab("cart")}>
                 <ShoppingCart className="h-5 w-5" />
@@ -539,18 +416,22 @@ const IndexContent = () => {
             <Cart />
           </TabsContent>
 
-          {userType === 'buyer' && <TabsContent value="nearby">
+          {userType === 'buyer' && (
+            <TabsContent value="nearby">
               <NearbyShops />
-            </TabsContent>}
+            </TabsContent>
+          )}
 
-          {userType === 'seller' && <>
+          {userType === 'seller' && (
+            <>
               <TabsContent value="register">
                 <ShopRegistration />
               </TabsContent>
               <TabsContent value="inventory">
                 <InventoryManagement />
               </TabsContent>
-            </>}
+            </>
+          )}
 
           <TabsContent value="profile" className="space-y-6">
             <div className="max-w-2xl mx-auto space-y-6">
@@ -568,11 +449,7 @@ const IndexContent = () => {
                   <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setShowSettings(true)}>
                     Open Settings
                   </Button>
-                  <Button variant="outline" className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => {
-                  setIsRegistered(false);
-                  setUserType(null);
-                  setCurrentTab('search');
-                }}>
+                  <Button variant="outline" className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={handleLogout}>
                     Logout
                   </Button>
                 </CardContent>
@@ -601,21 +478,26 @@ const IndexContent = () => {
             <span className="text-xs text-muted-foreground">Lab Tests</span>
           </Button>
           <Button variant="ghost" className="flex flex-col items-center gap-1 p-2 h-auto">
-            <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+            <Shield className="h-5 w-5 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Insurance</span>
           </Button>
           <Button variant="ghost" className="flex flex-col items-center gap-1 p-2 h-auto" onClick={() => setCurrentTab("profile")}>
             <User className={`h-5 w-5 ${currentTab === 'profile' ? 'text-primary' : 'text-muted-foreground'}`} />
-            <span className={`text-xs ${currentTab === 'profile' ? 'text-primary' : 'text-muted-foreground'}`}>Health Records</span>
+            <span className={`text-xs ${currentTab === 'profile' ? 'text-primary' : 'text-muted-foreground'}`}>Profile</span>
           </Button>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 const Index = () => {
-  return <CartProvider>
+  return (
+    <CartProvider>
       <IndexContent />
       <Toaster />
-    </CartProvider>;
+    </CartProvider>
+  );
 };
+
 export default Index;
