@@ -82,12 +82,12 @@ const IndexContent = () => {
         const { latitude, longitude } = position.coords;
         
         try {
-          // Reverse geocoding to get city name
+          // Use OpenStreetMap Nominatim for reverse geocoding (free alternative)
           const response = await fetch(
-            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw&types=place`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`
           );
           const data = await response.json();
-          const city = data.features?.[0]?.text || "Unknown Location";
+          const city = data.address?.city || data.address?.town || data.address?.village || "Unknown Location";
           
           // Save location to database
           const { data: { user } } = await supabase.auth.getUser();
@@ -511,11 +511,15 @@ const IndexContent = () => {
               <h3 className="font-semibold text-sm">Popular Picks At</h3>
               <p className="text-xs text-violet-600 font-medium">HALF PRICE</p>
             </Card>
-            <Card className="p-4 text-center bg-card/80 backdrop-blur-sm">
+            <Button 
+              variant="outline" 
+              className="p-4 h-auto flex-col bg-card/80 backdrop-blur-sm hover:bg-primary/10 transition-all duration-300 hover:shadow-[var(--shadow-glow)]"
+              onClick={() => setCurrentTab('nearby')}
+            >
               <div className="text-teal-500 text-3xl mb-2">🏪</div>
-              <h3 className="font-semibold text-sm">Pharmacy Near Me</h3>
-              <p className="text-xs text-violet-600 font-medium">STORE PURCHASES</p>
-            </Card>
+              <h3 className="font-semibold text-sm">Find Nearby Medical Shops</h3>
+              <p className="text-xs text-violet-600 font-medium">LOCATION BASED</p>
+            </Button>
           </div>
         </div>
       </div>

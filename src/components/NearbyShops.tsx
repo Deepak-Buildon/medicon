@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Phone, Clock, Star, Navigation, Loader2 } from "lucide-react";
+import { MapPin, Phone, Clock, Star, Navigation, Loader2, Map } from "lucide-react";
+import MedicalShopsMap from "./MedicalShopsMap";
 
 interface MedicalShop {
   id: string;
@@ -29,6 +30,7 @@ const NearbyShops = () => {
   const [shops, setShops] = useState<MedicalShop[]>([]);
   const [loading, setLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [showMap, setShowMap] = useState(false);
 
   const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
     return new Promise((resolve, reject) => {
@@ -140,6 +142,10 @@ const NearbyShops = () => {
     findNearbyShops();
   }, []);
 
+  if (showMap) {
+    return <MedicalShopsMap onClose={() => setShowMap(false)} />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -149,14 +155,20 @@ const NearbyShops = () => {
             Find verified medical shops near your location
           </p>
         </div>
-        <Button onClick={findNearbyShops} disabled={loading} className="flex items-center gap-2">
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Navigation className="h-4 w-4" />
-          )}
-          {loading ? "Finding..." : "Refresh Location"}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowMap(true)} variant="default">
+            <Map className="h-4 w-4 mr-2" />
+            View Map
+          </Button>
+          <Button onClick={findNearbyShops} disabled={loading} className="flex items-center gap-2" variant="outline">
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Navigation className="h-4 w-4" />
+            )}
+            {loading ? "Finding..." : "Refresh"}
+          </Button>
+        </div>
       </div>
 
       {userLocation && (
