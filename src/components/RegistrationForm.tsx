@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Store } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 interface RegistrationFormProps {
   userType: 'buyer' | 'seller';
@@ -18,12 +17,8 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
     phone: '',
     address: '',
-    city: '',
-    state: '',
-    postalCode: '',
     // Seller specific fields
     storeName: '',
     licenseNumber: '',
@@ -31,11 +26,11 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
   });
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.address) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -44,108 +39,22 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
       return;
     }
 
-    // Additional validation for sellers
-    if (userType === 'seller') {
-      if (!formData.storeName || !formData.licenseNumber || !formData.address || !formData.phone) {
-        toast({
-          title: "Error",
-          description: "Please fill in all required seller fields",
-          variant: "destructive"
-        });
-        return;
-      }
-    }
-
-    try {
-      // Sign up the user
-      const redirectUrl = `${window.location.origin}/`;
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            display_name: formData.name,
-            user_type: userType
-          }
-        }
-      });
-
-      if (error) {
-        toast({
-          title: "Registration Failed",
-          description: error.message,
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (data.user) {
-        // Create profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: data.user.id,
-            display_name: formData.name,
-            user_type: userType,
-            phone: formData.phone || null,
-            address: formData.address || null,
-            city: formData.city || null,
-            state: formData.state || null,
-            postal_code: formData.postalCode || null
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-        }
-
-        // If seller, create shop record
-        if (userType === 'seller') {
-          const { error: shopError } = await supabase
-            .from('medical_shops')
-            .insert({
-              owner_id: data.user.id,
-              shop_name: formData.storeName,
-              owner_name: formData.name,
-              license_number: formData.licenseNumber,
-              phone: formData.phone,
-              email: formData.email,
-              address: formData.address,
-              city: formData.city || '',
-              state: formData.state || '',
-              postal_code: formData.postalCode || '',
-              latitude: 0, // Will be updated when location is provided
-              longitude: 0, // Will be updated when location is provided
-              is_verified: false,
-              is_active: true
-            });
-
-          if (shopError) {
-            console.error('Shop creation error:', shopError);
-            toast({
-              title: "Warning",
-              description: "Account created but shop registration failed. Please contact support.",
-              variant: "destructive"
-            });
-          }
-        }
-
-        toast({
-          title: "Registration Successful!",
-          description: data.user.email_confirmed_at 
-            ? `Welcome to QuickDose as a ${userType}!`
-            : `Please check your email to confirm your account before signing in.`
-        });
-        
-        onRegistrationComplete();
-      }
-    } catch (error: any) {
+    if (userType === 'seller' && (!formData.storeName || !formData.licenseNumber)) {
       toast({
-        title: "Registration Failed",
-        description: "An unexpected error occurred",
+        title: "Error",
+        description: "Please fill in store name and license number",
         variant: "destructive"
       });
+      return;
     }
+
+    // Simulate registration
+    toast({
+      title: "Registration Successful!",
+      description: `Welcome to MediConnect as a ${userType}!`
+    });
+    
+    onRegistrationComplete();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -206,34 +115,17 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
+              <Label htmlFor="phone">Phone Number *</Label>
               <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
+                id="phone"
+                name="phone"
+                value={formData.phone}
                 onChange={handleChange}
-                placeholder="Create a password"
+                placeholder="Enter your phone number"
                 className="transition-all duration-200 focus:shadow-[var(--shadow-glow)]"
                 required
               />
             </div>
-
-            {userType === 'seller' && (
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Enter your phone number"
-                  className="transition-all duration-200 focus:shadow-[var(--shadow-glow)]"
-                  required
-                />
-              </div>
-            )}
 
             <div className="space-y-2">
               <Label htmlFor="address">Address *</Label>
