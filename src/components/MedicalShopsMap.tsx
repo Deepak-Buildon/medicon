@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Navigation, Clock, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
+
 
 // Fix for default markers in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -38,6 +38,58 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Default to India center
+
+  const mapRef = useRef<L.Map | null>(null);
+  const markersLayerRef = useRef<L.LayerGroup | null>(null);
+  const mapContainerEl = useRef<HTMLDivElement | null>(null);
+
+  // initialize map once
+  useEffect(() => {
+    if (mapRef.current || !mapContainerEl.current) return;
+    mapRef.current = L.map(mapContainerEl.current).setView(mapCenter, userLocation ? 13 : 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(mapRef.current);
+    markersLayerRef.current = L.layerGroup().addTo(mapRef.current);
+  }, [mapCenter, userLocation]);
+
+  // keep view in sync
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setView(mapCenter, userLocation ? 13 : 5);
+    }
+  }, [mapCenter, userLocation]);
+
+  // update markers when data changes
+  useEffect(() => {
+    if (!markersLayerRef.current) return;
+    const layer = markersLayerRef.current;
+    layer.clearLayers();
+
+    if (userLocation) {
+      L.marker(userLocation).bindPopup('<strong>Your Location</strong>').addTo(layer);
+    }
+
+    shops.forEach((shop) => {
+      const html = `
+        <div class="space-y-2">
+          <div style="font-weight:600">${shop.shop_name}</div>
+          <div style="font-size:12px;opacity:.75">${shop.address}, ${shop.city}</div>
+          ${shop.distance !== undefined ? `<div style="color:var(--primary)">${shop.distance.toFixed(1)} km away</div>` : ''}
+        </div>
+      `;
+      L.marker([shop.latitude, shop.longitude]).bindPopup(html, { maxWidth: 300 }).addTo(layer);
+    });
+  }, [shops, userLocation]);
+
+  // cleanup
+  useEffect(() => {
+    return () => {
+      mapRef.current?.remove();
+      mapRef.current = null;
+      markersLayerRef.current = null;
+    };
+  }, []);
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371; // Radius of the Earth in kilometers
@@ -158,104 +210,9 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
         </div>
         
         <div className="flex-1 relative">
-          <MapContainer
-            center={mapCenter} 
-            zoom={userLocation ? 13 : 5}
-            style={{ height: '100%', width: '100%' }}
-            className="z-0"
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            
-            {/* User location marker */}
-            {userLocation && (
-              <Marker 
-                position={userLocation}
-                icon={new L.Icon({
-                  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-                  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-                  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-                  iconSize: [25, 41],
-                  iconAnchor: [12, 41],
-                  popupAnchor: [1, -34],
-                  shadowSize: [41, 41]
-                })}
-              >
-                <Popup>
-                  <div className="text-center">
-                    <strong>Your Location</strong>
-                  </div>
-                </Popup>
-              </Marker>
-            )}
-            
-            {/* Medical shop markers */}
-            {shops.map((shop) => (
-              <Marker 
-                key={shop.id} 
-                position={[shop.latitude, shop.longitude]}
-                icon={new L.Icon({
-                  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-                  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-                  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-                  iconSize: [25, 41],
-                  iconAnchor: [12, 41],
-                  popupAnchor: [1, -34],
-                  shadowSize: [41, 41]
-                })}
-              >
-                <Popup maxWidth={300}>
-                  <div className="space-y-3">
-                    <div>
-                      <h3 className="font-semibold text-lg">{shop.shop_name}</h3>
-                      {shop.is_verified && (
-                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                          ✓ Verified
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="text-sm space-y-1">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
-                        <span>{shop.address}, {shop.city}</span>
-                      </div>
-                      
-                      {shop.distance && (
-                        <div className="text-primary font-medium">
-                          {shop.distance.toFixed(1)} km away
-                        </div>
-                      )}
-                      
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1 text-muted-foreground" />
-                        <span>{formatOperatingHours(shop.operating_hours)}</span>
-                      </div>
-                    </div>
-                    
-                    {shop.services && shop.services.length > 0 && (
-                      <div className="text-sm">
-                        <span className="font-medium">Services: </span>
-                        <span>{shop.services.slice(0, 3).join(', ')}</span>
-                        {shop.services.length > 3 && <span> +{shop.services.length - 3} more</span>}
-                      </div>
-                    )}
-                    
-                    <Button 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => openInMaps(shop.latitude, shop.longitude, shop.shop_name)}
-                    >
-                      <Navigation className="h-3 w-3 mr-1" />
-                      Get Directions
-                    </Button>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
+          <div className="absolute inset-0">
+            <div ref={mapContainerEl} className="w-full h-full" />
+          </div>
         </div>
         
         <div className="p-4 bg-muted text-sm text-muted-foreground">
