@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +37,7 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
   const [shops, setShops] = useState<MedicalShop[]>([]);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Default to India center
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371; // Radius of the Earth in kilometers
@@ -74,6 +75,7 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
       // Get user's current location
       const [lat, lng] = await getCurrentLocation();
       setUserLocation([lat, lng]);
+      setMapCenter([lat, lng]);
 
       // Fetch shops from Supabase using the secure RPC
       const { data: shopsData, error } = await supabase
@@ -134,19 +136,6 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
     return `${todayHours.open} - ${todayHours.close}`;
   };
 
-  // Custom hook to center map on user location
-  const MapController = () => {
-    const map = useMap();
-    
-    useEffect(() => {
-      if (userLocation) {
-        map.setView(userLocation, 13);
-      }
-    }, [map, userLocation]);
-    
-    return null;
-  };
-
   if (loading) {
     return (
       <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -170,12 +159,11 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
         
         <div className="flex-1 relative">
           <MapContainer
-            center={userLocation || [20.5937, 78.9629]} 
+            center={mapCenter} 
             zoom={userLocation ? 13 : 5}
             style={{ height: '100%', width: '100%' }}
             className="z-0"
           >
-            <MapController />
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -185,11 +173,14 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
             {userLocation && (
               <Marker 
                 position={userLocation}
-                icon={L.divIcon({
-                  html: '<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(59,130,246,0.5);"></div>',
-                  className: 'custom-marker',
-                  iconSize: [16, 16],
-                  iconAnchor: [8, 8]
+                icon={new L.Icon({
+                  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+                  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                  iconSize: [25, 41],
+                  iconAnchor: [12, 41],
+                  popupAnchor: [1, -34],
+                  shadowSize: [41, 41]
                 })}
               >
                 <Popup>
@@ -205,11 +196,14 @@ const MedicalShopsMap: React.FC<MedicalShopsMapProps> = ({ onClose }) => {
               <Marker 
                 key={shop.id} 
                 position={[shop.latitude, shop.longitude]}
-                icon={L.divIcon({
-                  html: '<div style="background-color: #10b981; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></div>',
-                  className: 'custom-marker',
-                  iconSize: [20, 20],
-                  iconAnchor: [10, 10]
+                icon={new L.Icon({
+                  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+                  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                  iconSize: [25, 41],
+                  iconAnchor: [12, 41],
+                  popupAnchor: [1, -34],
+                  shadowSize: [41, 41]
                 })}
               >
                 <Popup maxWidth={300}>
