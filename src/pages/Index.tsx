@@ -511,11 +511,15 @@ const IndexContent = () => {
               <h3 className="font-semibold text-sm">Popular Picks At</h3>
               <p className="text-xs text-violet-600 font-medium">HALF PRICE</p>
             </Card>
-            <Card className="p-4 text-center bg-card/80 backdrop-blur-sm">
+            <Button 
+              variant="outline" 
+              className="p-4 h-auto flex-col bg-card/80 backdrop-blur-sm hover:bg-primary/10 transition-all duration-300 hover:shadow-[var(--shadow-glow)]"
+              onClick={() => setCurrentTab('nearby')}
+            >
               <div className="text-teal-500 text-3xl mb-2">🏪</div>
-              <h3 className="font-semibold text-sm">Pharmacy Near Me</h3>
-              <p className="text-xs text-violet-600 font-medium">STORE PURCHASES</p>
-            </Card>
+              <h3 className="font-semibold text-sm">Find Nearby Medical Shops</h3>
+              <p className="text-xs text-violet-600 font-medium">LOCATION BASED</p>
+            </Button>
           </div>
         </div>
       </div>
