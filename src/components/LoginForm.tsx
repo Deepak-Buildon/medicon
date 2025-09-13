@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Store, LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LoginFormProps {
   userType: 'buyer' | 'seller';
@@ -17,9 +18,10 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
     email: '',
     password: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -32,13 +34,38 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
       return;
     }
 
-    // Simulate login
-    toast({
-      title: "Login Successful!",
-      description: `Welcome back to MediConnect!`
-    });
+    setIsLoading(true);
     
-    onLoginComplete();
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Login Successful!",
+        description: `Welcome back to QuickDose!`
+      });
+      
+      onLoginComplete();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,10 +128,11 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
 
             <Button 
               type="submit" 
+              disabled={isLoading}
               className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
             >
               <LogIn className="h-4 w-4 mr-2" />
-              Sign In as {userType === 'buyer' ? 'Buyer' : 'Seller'}
+              {isLoading ? 'Signing In...' : `Sign In as ${userType === 'buyer' ? 'Buyer' : 'Seller'}`}
             </Button>
 
             <div className="text-center pt-4">

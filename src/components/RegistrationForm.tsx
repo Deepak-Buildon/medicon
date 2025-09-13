@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Store } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RegistrationFormProps {
   userType: 'buyer' | 'seller';
@@ -17,6 +18,7 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     phone: '',
     address: '',
     // Seller specific fields
@@ -24,13 +26,14 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
     licenseNumber: '',
     description: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.name || !formData.email || !formData.phone || !formData.address) {
+    if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.address) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -48,13 +51,93 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
       return;
     }
 
-    // Simulate registration
-    toast({
-      title: "Registration Successful!",
-      description: `Welcome to MediConnect as a ${userType}!`
-    });
+    setIsLoading(true);
     
-    onRegistrationComplete();
+    try {
+      // Sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            display_name: formData.name,
+            user_type: userType
+          }
+        }
+      });
+
+      if (authError) {
+        toast({
+          title: "Registration Failed",
+          description: authError.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (authData.user) {
+        // Create user profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: authData.user.id,
+            display_name: formData.name,
+            phone: formData.phone,
+            address: formData.address,
+            user_type: userType
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
+
+        // If seller, create medical shop entry
+        if (userType === 'seller') {
+          const { error: shopError } = await supabase
+            .from('medical_shops')
+            .insert({
+              owner_id: authData.user.id,
+              shop_name: formData.storeName,
+              license_number: formData.licenseNumber,
+              owner_name: formData.name,
+              phone: formData.phone,
+              email: formData.email,
+              address: formData.address,
+              city: '', // Will be updated when location is set
+              state: '', // Will be updated when location is set
+              postal_code: '', // Will be updated when location is set
+              latitude: 0, // Will be updated when location is set
+              longitude: 0, // Will be updated when location is set
+              services: formData.description ? [formData.description] : []
+            });
+
+          if (shopError) {
+            console.error('Shop creation error:', shopError);
+            toast({
+              title: "Warning",
+              description: "Account created but shop registration failed. Please complete shop setup later.",
+              variant: "destructive"
+            });
+          }
+        }
+      }
+
+      toast({
+        title: "Registration Successful!",
+        description: `Welcome to QuickDose as a ${userType}! Please check your email to verify your account.`
+      });
+      
+      onRegistrationComplete();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred during registration",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -110,6 +193,21 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
                 onChange={handleChange}
                 placeholder="Enter your email"
                 className="transition-all duration-200 focus:shadow-[var(--shadow-glow)]"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password *</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password (min 6 characters)"
+                className="transition-all duration-200 focus:shadow-[var(--shadow-glow)]"
+                minLength={6}
                 required
               />
             </div>
@@ -186,9 +284,10 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
 
             <Button 
               type="submit" 
+              disabled={isLoading}
               className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300"
             >
-              Register as {userType === 'buyer' ? 'Buyer' : 'Seller'}
+              {isLoading ? 'Creating Account...' : `Register as ${userType === 'buyer' ? 'Buyer' : 'Seller'}`}
             </Button>
 
             <div className="text-center pt-4">
