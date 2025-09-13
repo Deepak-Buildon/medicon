@@ -90,6 +90,16 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
+          toast({
+            title: "Warning", 
+            description: "Account created but profile setup failed. Please complete your profile later.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Profile Created!",
+            description: "Your profile has been successfully created."
+          });
         }
 
         // If seller, create medical shop entry
@@ -125,7 +135,7 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
 
       toast({
         title: "Registration Successful!",
-        description: `Welcome to QuickDose as a ${userType}! Please check your email to verify your account.`
+        description: `Welcome to QuickDose as a ${userType}! ${authData.user?.email_confirmed_at ? 'You can now sign in.' : 'Please check your email to verify your account.'}`
       });
       
       onRegistrationComplete();

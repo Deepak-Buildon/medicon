@@ -16,7 +16,7 @@ import { ProfilePhoto } from "@/components/ProfilePhoto";
 import { Settings } from "@/components/Settings";
 import NearbyShops from "@/components/NearbyShops";
 import ShopRegistration from "@/components/ShopRegistration";
-import UserLocationManager from "@/components/UserLocationManager";
+import { BuyerProfile } from "@/components/BuyerProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -457,29 +457,7 @@ const IndexContent = () => {
 
           <TabsContent value="profile" className="space-y-6">
             <div className="max-w-2xl mx-auto space-y-6">
-              <Card className="bg-card/80 backdrop-blur-sm">
-                <CardHeader className="text-center">
-                  <ProfilePhoto />
-                  <CardTitle className="text-2xl text-primary">
-                    User Profile
-                  </CardTitle>
-                  <CardDescription>
-                    Manage your account settings and preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setShowSettings(true)}>
-                    Open Settings
-                  </Button>
-          <Button variant="outline" className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-                </CardContent>
-              </Card>
-              
-              {/* Location Management */}
-              <UserLocationManager userType={userType} />
+              {user && <BuyerProfile user={user} />}
             </div>
           </TabsContent>
         </Tabs>
