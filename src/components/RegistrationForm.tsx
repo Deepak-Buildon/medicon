@@ -77,24 +77,42 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
       }
 
       if (authData.user) {
-        // Create user profile
+        // Create user profile with comprehensive data
+        const profileData = {
+          user_id: authData.user.id,
+          display_name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+          user_type: userType,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert({
-            user_id: authData.user.id,
-            display_name: formData.name,
-            phone: formData.phone,
-            address: formData.address,
-            user_type: userType
-          });
+          .insert(profileData);
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
-          toast({
-            title: "Warning", 
-            description: "Account created but profile setup failed. Please complete your profile later.",
-            variant: "destructive"
-          });
+          // Try to update existing profile if insert failed
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update(profileData)
+            .eq('user_id', authData.user.id);
+          
+          if (updateError) {
+            console.error('Profile update error:', updateError);
+            toast({
+              title: "Warning", 
+              description: "Account created but profile setup failed. Please complete your profile later.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Profile Updated!",
+              description: "Your profile has been successfully updated."
+            });
+          }
         } else {
           toast({
             title: "Profile Created!",
