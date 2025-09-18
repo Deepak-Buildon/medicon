@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 export const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,8 @@ export const RegisterForm = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
   const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -48,6 +51,15 @@ export const RegisterForm = () => {
       return;
     }
 
+    if (!captchaToken) {
+      toast({
+        title: "Error",
+        description: "Please complete the captcha verification",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -57,6 +69,7 @@ export const RegisterForm = () => {
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
+          captchaToken,
           data: {
             display_name: formData.fullName,
             user_type: 'buyer'
@@ -120,6 +133,9 @@ export const RegisterForm = () => {
       });
     } finally {
       setIsLoading(false);
+      // Reset captcha after attempt
+      captchaRef.current?.resetCaptcha();
+      setCaptchaToken(null);
     }
   };
 
@@ -198,9 +214,20 @@ export const RegisterForm = () => {
         />
       </div>
 
+      <div className="space-y-2">
+        <Label>Security Verification</Label>
+        <HCaptcha
+          ref={captchaRef}
+          sitekey="10000000-ffff-ffff-ffff-000000000001" // Test key - replace with your actual hCaptcha site key
+          onVerify={(token) => setCaptchaToken(token)}
+          onExpire={() => setCaptchaToken(null)}
+          onError={() => setCaptchaToken(null)}
+        />
+      </div>
+
       <Button 
         type="submit" 
-        disabled={isLoading}
+        disabled={isLoading || !captchaToken}
         className="w-full"
       >
         <UserPlus className="h-4 w-4 mr-2" />

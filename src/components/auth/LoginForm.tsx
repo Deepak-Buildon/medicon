@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { LogIn, Eye, EyeOff } from "lucide-react";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -25,12 +28,24 @@ export const LoginForm = () => {
       return;
     }
 
+    if (!captchaToken) {
+      toast({
+        title: "Error",
+        description: "Please complete the captcha verification",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
-        password
+        password,
+        options: {
+          captchaToken
+        }
       });
 
       if (error) {
@@ -56,6 +71,9 @@ export const LoginForm = () => {
       });
     } finally {
       setIsLoading(false);
+      // Reset captcha after attempt
+      captchaRef.current?.resetCaptcha();
+      setCaptchaToken(null);
     }
   };
 
@@ -96,9 +114,20 @@ export const LoginForm = () => {
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label>Security Verification</Label>
+        <HCaptcha
+          ref={captchaRef}
+          sitekey="10000000-ffff-ffff-ffff-000000000001" // Test key - replace with your actual hCaptcha site key
+          onVerify={(token) => setCaptchaToken(token)}
+          onExpire={() => setCaptchaToken(null)}
+          onError={() => setCaptchaToken(null)}
+        />
+      </div>
+
       <Button 
         type="submit" 
-        disabled={isLoading}
+        disabled={isLoading || !captchaToken}
         className="w-full"
       >
         <LogIn className="h-4 w-4 mr-2" />
