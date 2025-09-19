@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,14 +8,6 @@ import { Label } from '@/components/ui/label';
 import { MapPin, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-
-// Fix for default markers in react-leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
 
 interface LocationData {
   latitude: number;
@@ -33,6 +24,11 @@ interface LocationPickerProps {
 }
 
 const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSaved, userType = 'buyer' }) => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const marker = useRef<mapboxgl.Marker | null>(null);
+  
+  const [mapboxToken, setMapboxToken] = useState('');
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,19 +36,49 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSaved, userTy
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [mapCenter, setMapCenter] = useState<[number, number]>([28.6139, 77.2090]); // Default to Delhi, India
 
-  // Component for handling map clicks
-  const MapClickHandler = () => {
-    useMapEvents({
-      click: (e) => {
-        const { lat, lng } = e.latlng;
-        setLocation({ latitude: lat, longitude: lng });
-        reverseGeocode(lng, lat);
-      },
+  // Initialize map when token is provided
+  useEffect(() => {
+    if (!mapboxToken || !mapContainer.current || map.current) return;
+
+    mapboxgl.accessToken = mapboxToken;
+    
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [77.2090, 28.6139], // Default to Delhi, India
+      zoom: 10,
     });
-    return null;
-  };
+
+    // Add navigation controls
+    map.current.addControl(
+      new mapboxgl.NavigationControl(),
+      'top-right'
+    );
+
+    // Add click event to place marker
+    map.current.on('click', (e) => {
+      const { lng, lat } = e.lngLat;
+      setLocation({ latitude: lat, longitude: lng });
+      
+      // Remove existing marker
+      if (marker.current) {
+        marker.current.remove();
+      }
+      
+      // Add new marker
+      marker.current = new mapboxgl.Marker({ color: '#10b981' })
+        .setLngLat([lng, lat])
+        .addTo(map.current!);
+      
+      // Reverse geocoding to get address
+      reverseGeocode(lng, lat);
+    });
+
+    return () => {
+      map.current?.remove();
+    };
+  }, [mapboxToken]);
 
   // Get current location
   const getCurrentLocation = () => {
@@ -66,10 +92,26 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSaved, userTy
       (position) => {
         const { latitude, longitude } = position.coords;
         setLocation({ latitude, longitude });
-        setMapCenter([latitude, longitude]);
         
-        // Reverse geocoding
-        reverseGeocode(longitude, latitude);
+        if (map.current) {
+          map.current.flyTo({
+            center: [longitude, latitude],
+            zoom: 15,
+          });
+          
+          // Remove existing marker
+          if (marker.current) {
+            marker.current.remove();
+          }
+          
+          // Add new marker
+          marker.current = new mapboxgl.Marker({ color: '#10b981' })
+            .setLngLat([longitude, latitude])
+            .addTo(map.current);
+          
+          // Reverse geocoding
+          reverseGeocode(longitude, latitude);
+        }
         
         setIsLoading(false);
         toast.success('Location found successfully!');
@@ -87,19 +129,36 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSaved, userTy
     );
   };
 
-  // Reverse geocoding using OpenStreetMap Nominatim (free alternative)
+  // Reverse geocoding to get address from coordinates
   const reverseGeocode = async (lng: number, lat: number) => {
+    if (!mapboxToken) return;
+    
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}`
       );
       const data = await response.json();
       
-      if (data) {
-        setAddress(data.display_name || '');
-        setCity(data.address?.city || data.address?.town || data.address?.village || '');
-        setState(data.address?.state || '');
-        setPostalCode(data.address?.postcode || '');
+      if (data.features && data.features.length > 0) {
+        const feature = data.features[0];
+        const addressComponents = feature.context || [];
+        
+        setAddress(feature.place_name || '');
+        
+        // Extract city, state, postal code from context
+        const cityFeature = addressComponents.find((c: any) => 
+          c.id.includes('place') || c.id.includes('locality')
+        );
+        const stateFeature = addressComponents.find((c: any) => 
+          c.id.includes('region')
+        );
+        const postalFeature = addressComponents.find((c: any) => 
+          c.id.includes('postcode')
+        );
+        
+        if (cityFeature) setCity(cityFeature.text);
+        if (stateFeature) setState(stateFeature.text);
+        if (postalFeature) setPostalCode(postalFeature.text);
       }
     } catch (error) {
       console.error('Reverse geocoding error:', error);
@@ -169,12 +228,46 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSaved, userTy
     }
   };
 
-  if (isLoading) {
+  if (!mapboxToken) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin mr-2" />
-        <span>Getting your location...</span>
-      </div>
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Setup Map
+          </CardTitle>
+          <CardDescription>
+            Enter your Mapbox public token to use the map. Get it from{' '}
+            <a 
+              href="https://mapbox.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              mapbox.com
+            </a>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="mapbox-token">Mapbox Public Token</Label>
+            <Input
+              id="mapbox-token"
+              type="password"
+              placeholder="pk.eyJ1IjoieW91ci11c2VybmFtZSIsImEiOiI..."
+              value={mapboxToken}
+              onChange={(e) => setMapboxToken(e.target.value)}
+            />
+          </div>
+          <Button 
+            onClick={() => mapboxToken && toast.success('Token set! You can now use the map.')}
+            disabled={!mapboxToken}
+            className="w-full"
+          >
+            Set Token
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -219,23 +312,11 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSaved, userTy
           </div>
           
           {/* Map Container */}
-          <div className="w-full h-96 rounded-lg border overflow-hidden">
-            <MapContainer
-              key={`${mapCenter[0]}-${mapCenter[1]}`}
-              center={mapCenter}
-              zoom={location ? 15 : 10}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <MapClickHandler />
-              {location && (
-                <Marker position={[location.latitude, location.longitude]} />
-              )}
-            </MapContainer>
-          </div>
+          <div 
+            ref={mapContainer} 
+            className="w-full h-96 rounded-lg border"
+            style={{ minHeight: '400px' }}
+          />
           
           {/* Location Details */}
           {location && (

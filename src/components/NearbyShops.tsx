@@ -4,12 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Phone, Clock, Star, Navigation, Loader2, Map } from "lucide-react";
-import MedicalShopsMap from "./MedicalShopsMap";
+import { MapPin, Phone, Clock, Star, Navigation, Loader2 } from "lucide-react";
 
 interface MedicalShop {
   id: string;
   shop_name: string;
+  owner_name: string;
+  phone: string;
+  email: string | null;
   address: string;
   city: string;
   state: string;
@@ -21,6 +23,8 @@ interface MedicalShop {
   services: any;
   is_verified: boolean | null;
   is_active: boolean | null;
+  license_number: string;
+  owner_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -30,7 +34,6 @@ const NearbyShops = () => {
   const [shops, setShops] = useState<MedicalShop[]>([]);
   const [loading, setLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [showMap, setShowMap] = useState(false);
 
   const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
     return new Promise((resolve, reject) => {
@@ -75,9 +78,12 @@ const NearbyShops = () => {
       const location = await getCurrentLocation();
       setUserLocation(location);
 
-      // Fetch public medical shops (without sensitive data)
+      // Fetch all verified medical shops
       const { data: shopsData, error } = await supabase
-        .rpc("get_public_medical_shops");
+        .from("medical_shops")
+        .select("*")
+        .eq("is_active", true)
+        .eq("is_verified", true);
 
       if (error) throw error;
 
@@ -142,10 +148,6 @@ const NearbyShops = () => {
     findNearbyShops();
   }, []);
 
-  if (showMap) {
-    return <MedicalShopsMap onClose={() => setShowMap(false)} />;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -155,20 +157,14 @@ const NearbyShops = () => {
             Find verified medical shops near your location
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowMap(true)} variant="default">
-            <Map className="h-4 w-4 mr-2" />
-            View Map
-          </Button>
-          <Button onClick={findNearbyShops} disabled={loading} className="flex items-center gap-2" variant="outline">
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Navigation className="h-4 w-4" />
-            )}
-            {loading ? "Finding..." : "Refresh"}
-          </Button>
-        </div>
+        <Button onClick={findNearbyShops} disabled={loading} className="flex items-center gap-2">
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Navigation className="h-4 w-4" />
+          )}
+          {loading ? "Finding..." : "Refresh Location"}
+        </Button>
       </div>
 
       {userLocation && (
@@ -187,7 +183,7 @@ const NearbyShops = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle className="text-lg">{shop.shop_name}</CardTitle>
-                  <CardDescription>{shop.city}, {shop.state}</CardDescription>
+                  <CardDescription>{shop.owner_name}</CardDescription>
                 </div>
                 {shop.is_verified && (
                   <Badge variant="secondary" className="flex items-center gap-1">
@@ -213,6 +209,10 @@ const NearbyShops = () => {
                   </span>
                 </div>
 
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">{shop.phone}</span>
+                </div>
 
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
@@ -239,13 +239,22 @@ const NearbyShops = () => {
 
               <div className="flex gap-2 pt-2">
                 <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`tel:${shop.phone}`, "_self")}
+                  className="flex-1"
+                >
+                  <Phone className="h-4 w-4 mr-1" />
+                  Call
+                </Button>
+                <Button
                   variant="default"
                   size="sm"
                   onClick={() => openInMaps(shop)}
-                  className="w-full"
+                  className="flex-1"
                 >
                   <Navigation className="h-4 w-4 mr-1" />
-                  Get Directions
+                  Directions
                 </Button>
               </div>
             </CardContent>
