@@ -9,9 +9,6 @@ import { MapPin, Phone, Clock, Star, Navigation, Loader2 } from "lucide-react";
 interface MedicalShop {
   id: string;
   shop_name: string;
-  owner_name: string;
-  phone: string;
-  email: string | null;
   address: string;
   city: string;
   state: string;
@@ -23,10 +20,7 @@ interface MedicalShop {
   services: any;
   is_verified: boolean | null;
   is_active: boolean | null;
-  license_number: string;
-  owner_id: string;
   created_at: string;
-  updated_at: string;
 }
 
 const NearbyShops = () => {
@@ -78,12 +72,8 @@ const NearbyShops = () => {
       const location = await getCurrentLocation();
       setUserLocation(location);
 
-      // Fetch all verified medical shops
-      const { data: shopsData, error } = await supabase
-        .from("medical_shops")
-        .select("*")
-        .eq("is_active", true)
-        .eq("is_verified", true);
+      // Fetch all verified medical shops using secure function
+      const { data: shopsData, error } = await supabase.rpc("get_secure_public_medical_shops");
 
       if (error) throw error;
 
@@ -183,7 +173,7 @@ const NearbyShops = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle className="text-lg">{shop.shop_name}</CardTitle>
-                  <CardDescription>{shop.owner_name}</CardDescription>
+                  <CardDescription>Medical Shop</CardDescription>
                 </div>
                 {shop.is_verified && (
                   <Badge variant="secondary" className="flex items-center gap-1">
@@ -209,10 +199,6 @@ const NearbyShops = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">{shop.phone}</span>
-                </div>
 
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
@@ -239,22 +225,13 @@ const NearbyShops = () => {
 
               <div className="flex gap-2 pt-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(`tel:${shop.phone}`, "_self")}
-                  className="flex-1"
-                >
-                  <Phone className="h-4 w-4 mr-1" />
-                  Call
-                </Button>
-                <Button
                   variant="default"
                   size="sm"
                   onClick={() => openInMaps(shop)}
-                  className="flex-1"
+                  className="w-full"
                 >
                   <Navigation className="h-4 w-4 mr-1" />
-                  Directions
+                  Get Directions
                 </Button>
               </div>
             </CardContent>
