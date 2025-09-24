@@ -74,6 +74,18 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
       password: formData.password,
       options: {
         emailRedirectTo: redirectUrl,
+        data: {
+          user_type: userType,
+          display_name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+          // Store seller data for later use
+          ...(userType === 'seller' && {
+            store_name: formData.storeName,
+            license_number: formData.licenseNumber,
+            store_description: formData.description
+          })
+        }
       },
     });
 
@@ -86,60 +98,9 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
       return;
     }
 
-    const newUser = data.user;
-    if (newUser) {
-      // Create user profile
-      const { error: profileError } = await supabase.from('profiles').insert({
-        user_id: newUser.id,
-        user_type: userType,
-        display_name: formData.name,
-        phone: formData.phone,
-        address: formData.address,
-      });
-
-      if (profileError) {
-        toast({
-          title: "Profile creation failed",
-          description: profileError.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // If seller, also create medical shop entry
-      if (userType === 'seller') {
-        const { error: shopError } = await supabase.from('medical_shops').insert({
-          owner_id: newUser.id,
-          shop_name: formData.storeName,
-          license_number: formData.licenseNumber,
-          owner_name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          address: formData.address,
-          city: '', // Will be updated when seller provides location
-          state: '', // Will be updated when seller provides location
-          postal_code: '', // Will be updated when seller provides location
-          latitude: 0, // Will be updated when seller provides location
-          longitude: 0, // Will be updated when seller provides location
-          services: ['general'], // Default service
-          is_verified: false, // Requires admin verification
-          is_active: true,
-        });
-
-        if (shopError) {
-          toast({
-            title: "Shop registration failed",
-            description: shopError.message,
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-    }
-
     toast({
       title: "Registration Successful!",
-      description: newUser ? `Welcome to MediConnect as a ${userType}!` : 'Check your email to confirm your account, then sign in.',
+      description: data.user ? `Welcome to MediConnect as a ${userType}!` : 'Check your email to confirm your account, then sign in.',
     });
 
     onRegistrationComplete();
