@@ -9,6 +9,10 @@ import { MapPin, Phone, Clock, Star, Navigation, Loader2 } from "lucide-react";
 interface MedicalShop {
   id: string;
   shop_name: string;
+  owner_name: string;
+  license_number: string;
+  email: string;
+  phone: string;
   address: string;
   city: string;
   state: string;
@@ -16,10 +20,6 @@ interface MedicalShop {
   latitude: number;
   longitude: number;
   distance?: number;
-  operating_hours: any;
-  services: any;
-  is_verified: boolean | null;
-  is_active: boolean | null;
   created_at: string;
 }
 
@@ -118,20 +118,6 @@ const NearbyShops = () => {
     window.open(url, "_blank");
   };
 
-  const formatOperatingHours = (hours: any) => {
-    if (!hours) return "Hours not specified";
-    
-    const today = new Date().toDateString().toLowerCase();
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const currentDay = days[new Date().getDay()];
-    
-    const todayHours = hours[currentDay];
-    if (!todayHours) return "Hours not specified";
-    
-    if (todayHours.closed) return "Closed today";
-    
-    return `${todayHours.open} - ${todayHours.close}`;
-  };
 
   useEffect(() => {
     // Auto-load nearby shops when component mounts
@@ -173,14 +159,12 @@ const NearbyShops = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle className="text-lg">{shop.shop_name}</CardTitle>
-                  <CardDescription>Medical Shop</CardDescription>
+                  <CardDescription>{shop.owner_name}</CardDescription>
                 </div>
-                {shop.is_verified && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Star className="h-3 w-3" />
-                    Verified
-                  </Badge>
-                )}
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Star className="h-3 w-3" />
+                  Licensed
+                </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -199,29 +183,13 @@ const NearbyShops = () => {
                   </span>
                 </div>
 
-
                 <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Phone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">
-                    {formatOperatingHours(shop.operating_hours)}
+                    {shop.phone}
                   </span>
                 </div>
               </div>
-
-              {shop.services && Array.isArray(shop.services) && shop.services.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {shop.services.slice(0, 2).map((service: string, index: number) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {service.replace("_", " ")}
-                    </Badge>
-                  ))}
-                  {shop.services.length > 2 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{shop.services.length - 2} more
-                    </Badge>
-                  )}
-                </div>
-              )}
 
               <div className="flex gap-2 pt-2">
                 <Button

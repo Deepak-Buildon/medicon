@@ -112,12 +112,18 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Register user with Supabase Auth
+      // Register user with Supabase Auth - trigger will create profile automatically
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            name: formData.name,
+            user_type: userType,
+            phone: formData.phone,
+            address: formData.address,
+          }
         }
       });
 
@@ -128,21 +134,7 @@ const Auth = () => {
 
       const newUser = data.user;
       if (newUser) {
-        // Create user profile
-        const { error: profileError } = await supabase.from('profiles').insert({
-          user_id: newUser.id,
-          user_type: userType,
-          display_name: formData.name,
-          phone: formData.phone,
-          address: formData.address,
-        });
-
-        if (profileError) {
-          toast.error("Profile creation failed: " + profileError.message);
-          return;
-        }
-
-        // If seller, also create medical shop entry
+        // If seller, create medical shop entry
         if (userType === 'seller') {
           const { error: shopError } = await supabase.from('medical_shops').insert({
             owner_id: newUser.id,
@@ -157,9 +149,6 @@ const Auth = () => {
             postal_code: '123456',
             latitude: 0,
             longitude: 0,
-            services: ['general'],
-            is_verified: false,
-            is_active: true,
           });
 
           if (shopError) {
