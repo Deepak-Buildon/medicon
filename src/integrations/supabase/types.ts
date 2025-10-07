@@ -14,16 +14,165 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      medical_shops: {
+        Row: {
+          address: string
+          city: string | null
+          created_at: string
+          email: string
+          id: string
+          latitude: number
+          license_number: string
+          longitude: number
+          owner_id: string
+          owner_name: string
+          phone: string
+          postal_code: string | null
+          shop_name: string
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          latitude: number
+          license_number: string
+          longitude: number
+          owner_id: string
+          owner_name: string
+          phone: string
+          postal_code?: string | null
+          shop_name: string
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          latitude?: number
+          license_number?: string
+          longitude?: number
+          owner_id?: string
+          owner_name?: string
+          phone?: string
+          postal_code?: string | null
+          shop_name?: string
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string | null
+          phone: string | null
+          postal_code: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+          user_type: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          user_type?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_secure_public_medical_shops: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          city: string
+          created_at: string
+          email: string
+          id: string
+          latitude: number
+          license_number: string
+          longitude: number
+          owner_name: string
+          phone: string
+          postal_code: string
+          shop_name: string
+          state: string
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "buyer" | "seller" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +299,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["buyer", "seller", "admin"],
+    },
   },
 } as const
