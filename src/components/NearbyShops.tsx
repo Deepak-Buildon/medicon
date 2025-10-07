@@ -10,9 +10,8 @@ interface MedicalShop {
   id: string;
   shop_name: string;
   owner_name: string;
-  license_number: string;
-  email: string;
   phone: string;
+  email: string | null;
   address: string;
   city: string;
   state: string;
@@ -20,7 +19,14 @@ interface MedicalShop {
   latitude: number;
   longitude: number;
   distance?: number;
+  operating_hours: any;
+  services: any;
+  is_verified: boolean | null;
+  is_active: boolean | null;
+  license_number: string;
+  owner_id: string;
   created_at: string;
+  updated_at: string;
 }
 
 const NearbyShops = () => {
@@ -72,8 +78,12 @@ const NearbyShops = () => {
       const location = await getCurrentLocation();
       setUserLocation(location);
 
-      // Fetch all verified medical shops using secure function
-      const { data: shopsData, error } = await supabase.rpc("get_secure_public_medical_shops");
+      // Fetch all verified medical shops
+      const { data: shopsData, error } = await supabase
+        .from("medical_shops")
+        .select("*")
+        .eq("is_active", true)
+        .eq("is_verified", true);
 
       if (error) throw error;
 
@@ -118,6 +128,20 @@ const NearbyShops = () => {
     window.open(url, "_blank");
   };
 
+  const formatOperatingHours = (hours: any) => {
+    if (!hours) return "Hours not specified";
+    
+    const today = new Date().toDateString().toLowerCase();
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const currentDay = days[new Date().getDay()];
+    
+    const todayHours = hours[currentDay];
+    if (!todayHours) return "Hours not specified";
+    
+    if (todayHours.closed) return "Closed today";
+    
+    return `${todayHours.open} - ${todayHours.close}`;
+  };
 
   useEffect(() => {
     // Auto-load nearby shops when component mounts
@@ -161,10 +185,12 @@ const NearbyShops = () => {
                   <CardTitle className="text-lg">{shop.shop_name}</CardTitle>
                   <CardDescription>{shop.owner_name}</CardDescription>
                 </div>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Star className="h-3 w-3" />
-                  Licensed
-                </Badge>
+                {shop.is_verified && (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Star className="h-3 w-3" />
+                    Verified
+                  </Badge>
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -185,21 +211,50 @@ const NearbyShops = () => {
 
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">{shop.phone}</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">
-                    {shop.phone}
+                    {formatOperatingHours(shop.operating_hours)}
                   </span>
                 </div>
               </div>
 
+              {shop.services && Array.isArray(shop.services) && shop.services.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {shop.services.slice(0, 2).map((service: string, index: number) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {service.replace("_", " ")}
+                    </Badge>
+                  ))}
+                  {shop.services.length > 2 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{shop.services.length - 2} more
+                    </Badge>
+                  )}
+                </div>
+              )}
+
               <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`tel:${shop.phone}`, "_self")}
+                  className="flex-1"
+                >
+                  <Phone className="h-4 w-4 mr-1" />
+                  Call
+                </Button>
                 <Button
                   variant="default"
                   size="sm"
                   onClick={() => openInMaps(shop)}
-                  className="w-full"
+                  className="flex-1"
                 >
                   <Navigation className="h-4 w-4 mr-1" />
-                  Get Directions
+                  Directions
                 </Button>
               </div>
             </CardContent>

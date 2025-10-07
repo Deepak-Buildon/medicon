@@ -20,10 +20,8 @@ import UserLocationManager from "@/components/UserLocationManager";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { useNavigate } from "react-router-dom";
 
 const IndexContent = () => {
-  const navigate = useNavigate();
   const [showWelcome, setShowWelcome] = useState(true);
   const [showPhoneVerification, setShowPhoneVerification] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
@@ -200,21 +198,12 @@ const IndexContent = () => {
             </p>
             
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={() => {
-                setShowWelcome(false);
-                setShowPhoneVerification(true);
-              }} className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
-                Get Started
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/auth')} 
-                className="text-lg px-8 py-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-              >
-                Demo Authentication
-              </Button>
-            </div>
+            <Button onClick={() => {
+            setShowWelcome(false);
+            setShowPhoneVerification(true);
+          }} className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-glow)] transition-all duration-300">
+              Get Started
+            </Button>
           </div>
         </div>
       </div>;

@@ -7,63 +7,75 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
+  // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
       medical_shops: {
         Row: {
           address: string
-          city: string | null
+          city: string
           created_at: string
-          email: string
+          email: string | null
           id: string
+          is_active: boolean | null
+          is_verified: boolean | null
           latitude: number
           license_number: string
           longitude: number
+          operating_hours: Json | null
           owner_id: string
           owner_name: string
           phone: string
-          postal_code: string | null
+          postal_code: string
+          services: Json | null
           shop_name: string
-          state: string | null
+          state: string
           updated_at: string
         }
         Insert: {
           address: string
-          city?: string | null
+          city: string
           created_at?: string
-          email: string
+          email?: string | null
           id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
           latitude: number
           license_number: string
           longitude: number
+          operating_hours?: Json | null
           owner_id: string
           owner_name: string
           phone: string
-          postal_code?: string | null
+          postal_code: string
+          services?: Json | null
           shop_name: string
-          state?: string | null
+          state: string
           updated_at?: string
         }
         Update: {
           address?: string
-          city?: string | null
+          city?: string
           created_at?: string
-          email?: string
+          email?: string | null
           id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
           latitude?: number
           license_number?: string
           longitude?: number
+          operating_hours?: Json | null
           owner_id?: string
           owner_name?: string
           phone?: string
-          postal_code?: string | null
+          postal_code?: string
+          services?: Json | null
           shop_name?: string
-          state?: string | null
+          state?: string
           updated_at?: string
         }
         Relationships: []
@@ -73,11 +85,10 @@ export type Database = {
           address: string | null
           city: string | null
           created_at: string
-          email: string | null
+          display_name: string | null
           id: string
           latitude: number | null
           longitude: number | null
-          name: string | null
           phone: string | null
           postal_code: string | null
           state: string | null
@@ -89,11 +100,10 @@ export type Database = {
           address?: string | null
           city?: string | null
           created_at?: string
-          email?: string | null
+          display_name?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
-          name?: string | null
           phone?: string | null
           postal_code?: string | null
           state?: string | null
@@ -105,11 +115,10 @@ export type Database = {
           address?: string | null
           city?: string | null
           created_at?: string
-          email?: string | null
+          display_name?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
-          name?: string | null
           phone?: string | null
           postal_code?: string | null
           state?: string | null
@@ -119,60 +128,18 @@ export type Database = {
         }
         Relationships: []
       }
-      user_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_secure_public_medical_shops: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          address: string
-          city: string
-          created_at: string
-          email: string
-          id: string
-          latitude: number
-          license_number: string
-          longitude: number
-          owner_name: string
-          phone: string
-          postal_code: string
-          shop_name: string
-          state: string
-        }[]
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
+      calculate_distance: {
+        Args: { lat1: number; lon1: number; lat2: number; lon2: number }
+        Returns: number
       }
     }
     Enums: {
-      app_role: "buyer" | "seller" | "admin"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -299,8 +266,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["buyer", "seller", "admin"],
-    },
+    Enums: {},
   },
 } as const
