@@ -69,40 +69,71 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
 
     const redirectUrl = `${window.location.origin}/`;
 
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            name: formData.name,
+            user_type: userType,
+            phone: formData.phone,
+            address: formData.address,
+          }
+        },
+      });
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newUser = data.user;
+      if (newUser && userType === 'seller') {
+        // Create medical shop entry for sellers
+        const { error: shopError } = await supabase.from('medical_shops').insert({
+          owner_id: newUser.id,
+          shop_name: formData.storeName,
+          license_number: formData.licenseNumber,
+          owner_name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          address: formData.address,
+          city: 'Demo City',
+          state: 'Demo State',
+          postal_code: '123456',
+          latitude: 0,
+          longitude: 0,
+        });
+
+        if (shopError) {
+          toast({
+            title: "Shop registration failed",
+            description: shopError.message,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
       toast({
-        title: "Registration failed",
-        description: error.message,
+        title: "Registration Successful!",
+        description: data.user ? `Welcome to MediConnect as a ${userType}!` : 'Check your email to confirm your account, then sign in.',
+      });
+
+      onRegistrationComplete();
+    } catch (err) {
+      toast({
+        title: "Unexpected error",
+        description: "Please try again later",
         variant: "destructive",
       });
-      return;
     }
-
-    const newUser = data.user;
-    if (newUser) {
-      await supabase.from('profiles').insert({
-        user_id: newUser.id,
-        user_type: userType,
-        display_name: formData.name,
-        phone: formData.phone,
-        address: formData.address,
-      });
-    }
-
-    toast({
-      title: "Registration Successful!",
-      description: newUser ? `Welcome to MediConnect as a ${userType}!` : 'Check your email to confirm your account, then sign in.',
-    });
-
-    onRegistrationComplete();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
