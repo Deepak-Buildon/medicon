@@ -53,7 +53,7 @@ export const LoginForm = ({ userType, onLoginComplete, onSwitchToRegister }: Log
         .from('profiles')
         .select('user_type, city')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (profile?.user_type && profile.user_type !== userType) {
         await supabase.auth.signOut();

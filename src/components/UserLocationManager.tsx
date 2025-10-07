@@ -17,7 +17,7 @@ interface UserProfile {
   state: string | null;
   postal_code: string | null;
   user_type: string | null;
-  name: string | null;
+  display_name: string | null;
   phone: string | null;
 }
 
