@@ -74,6 +74,12 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
       password: formData.password,
       options: {
         emailRedirectTo: redirectUrl,
+        data: {
+          user_type: userType,
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+        }
       },
     });
 
@@ -87,15 +93,6 @@ export const RegistrationForm = ({ userType, onRegistrationComplete, onSwitchToL
     }
 
     const newUser = data.user;
-    if (newUser) {
-      await supabase.from('profiles').insert({
-        user_id: newUser.id,
-        user_type: userType,
-        display_name: formData.name,
-        phone: formData.phone,
-        address: formData.address,
-      });
-    }
 
     toast({
       title: "Registration Successful!",
