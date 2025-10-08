@@ -17,8 +17,9 @@ interface UserProfile {
   state: string | null;
   postal_code: string | null;
   user_type: string | null;
-  display_name: string | null;
+  name: string | null;
   phone: string | null;
+  profile_photo_url: string | null;
 }
 
 interface UserLocationManagerProps {

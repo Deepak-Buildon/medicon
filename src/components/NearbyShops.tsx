@@ -19,14 +19,8 @@ interface MedicalShop {
   latitude: number;
   longitude: number;
   distance?: number;
-  operating_hours: any;
-  services: any;
-  is_verified: boolean | null;
-  is_active: boolean | null;
   license_number: string;
-  owner_id: string;
   created_at: string;
-  updated_at: string;
 }
 
 const NearbyShops = () => {
@@ -78,12 +72,10 @@ const NearbyShops = () => {
       const location = await getCurrentLocation();
       setUserLocation(location);
 
-      // Fetch all verified medical shops
+      // Fetch all medical shops
       const { data: shopsData, error } = await supabase
         .from("medical_shops")
-        .select("*")
-        .eq("is_active", true)
-        .eq("is_verified", true);
+        .select("*");
 
       if (error) throw error;
 
@@ -185,12 +177,10 @@ const NearbyShops = () => {
                   <CardTitle className="text-lg">{shop.shop_name}</CardTitle>
                   <CardDescription>{shop.owner_name}</CardDescription>
                 </div>
-                {shop.is_verified && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Star className="h-3 w-3" />
-                    Verified
-                  </Badge>
-                )}
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Star className="h-3 w-3" />
+                  Licensed
+                </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -213,29 +203,7 @@ const NearbyShops = () => {
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">{shop.phone}</span>
                 </div>
-
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    {formatOperatingHours(shop.operating_hours)}
-                  </span>
-                </div>
               </div>
-
-              {shop.services && Array.isArray(shop.services) && shop.services.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {shop.services.slice(0, 2).map((service: string, index: number) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {service.replace("_", " ")}
-                    </Badge>
-                  ))}
-                  {shop.services.length > 2 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{shop.services.length - 2} more
-                    </Badge>
-                  )}
-                </div>
-              )}
 
               <div className="flex gap-2 pt-2">
                 <Button

@@ -20,8 +20,11 @@ import UserLocationManager from "@/components/UserLocationManager";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 
 const IndexContent = () => {
+  const navigate = useNavigate();
   const [showWelcome, setShowWelcome] = useState(true);
   const [showPhoneVerification, setShowPhoneVerification] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
@@ -36,6 +39,49 @@ const IndexContent = () => {
   const [registeredNumbers, setRegisteredNumbers] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<string>("");
   const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+
+  // Check authentication state and load profile
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        setUser(authUser);
+        setIsRegistered(true);
+        setShowWelcome(false);
+        
+        // Load profile data
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('profile_photo_url, user_type')
+          .eq('user_id', authUser.id)
+          .single();
+        
+        if (profile) {
+          setProfilePhotoUrl(profile.profile_photo_url);
+          setUserType(profile.user_type as 'buyer' | 'seller');
+        }
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        setIsRegistered(true);
+        setShowWelcome(false);
+      } else {
+        setUser(null);
+        setIsRegistered(false);
+        setProfilePhotoUrl(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Check if phone number is already registered
   useEffect(() => {
@@ -477,9 +523,34 @@ const IndexContent = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button variant="secondary" size="sm" className="text-sm bg-white/20 text-white border-white/30 hover:bg-white/30">
-                Login
-              </Button>
+              {user ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/profile')}
+                  className="flex items-center gap-2 text-white hover:bg-white/20"
+                >
+                  <Avatar className="h-8 w-8 border-2 border-white/30">
+                    <AvatarImage src={profilePhotoUrl || undefined} />
+                    <AvatarFallback className="bg-white/20 text-white text-sm">
+                      {user.email?.charAt(0)?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm hidden sm:inline">Profile</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setUserType(null);
+                    setShowWelcome(false);
+                  }}
+                  className="text-sm bg-white/20 text-white border-white/30 hover:bg-white/30"
+                >
+                  Login
+                </Button>
+              )}
               <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" onClick={() => setCurrentTab("cart")}>
                 <ShoppingCart className="h-5 w-5" />
                 <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center">0</div>
